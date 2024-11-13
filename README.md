@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PROJECT `cyro`
 
 ---
@@ -9,3 +10,6 @@ developed : `y4z.dev`
 ---
 
 starting new end.
+=======
+# cyro v1
+>>>>>>> 49b0e86 (updated : readme)
