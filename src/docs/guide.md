@@ -1,377 +1,245 @@
-# `PROJECT cyro`
-
-### ABOUT `cyro`
-
-- A backend framework for Bun.js
-- Simplifies building web applications and APIs
-- Offers essential features like middleware and routing for application organization
+Here's the revised README:
 
 ---
 
-### ABOUT THE CREATOR
+# `PROJECT cyro`
 
-I'm a web developer who enjoys building things from scratch. This project is part of my efforts to improve efficiency by reducing repetitive work. **cyro** is available to everyone for free!
+### Overview of `cyro`
 
-If you'd like to donate or contribute, please feel free to **[contact me](https://www.y4z.dev)**.
+**cyro** is a backend framework designed for Bun.js, created to simplify the process of building web applications and APIs. With features like middleware and routing, **cyro** helps developers structure their applications with ease.
+
+---
+
+### About the Creator
+
+Hi! I'm a web developer with a passion for creating from the ground up. **cyro** was developed to reduce redundant work and boost development efficiency. It's freely available to everyone.
+
+Feel free to reach out if you'd like to contribute or make a donation: **[contact me](https://www.y4z.dev)**.
 
 **- y4z.dev -**
 
 ---
 
-### SPECIAL THANKS
+### Special Thanks
 
-This project is built on [Bun.sh](https://bun.sh), so a huge thanks to the Bun team!
+A big thank you to the team behind [Bun.sh](https://bun.sh) for making this project possible!
 
 ---
 
-### INSTALLING `cyro`
+### Installation Guide
 
-To install cyro in your project, use Bun:
+To add **cyro** to your project, use Bun:
 
 ```bash
 bun add cyro
 ```
 
-### SETTING UP `cyro`
+### Quick Start with `cyro`
 
-Import **cyro** into your project to get started:
+Import **cyro** and initialize your application:
 
 ```javascript
 import App from "cyro";
 const app = new App();
 
-app.run(); // default port is 2772, and default start logging is enabled
+app.run(); // Starts on port 2772 with logging enabled by default
 ```
 
 ---
 
-### REQUEST HANDLING
+### Handling Requests
 
-cyro provides methods for managing various types of application requests.
+**cyro** supports various request types for easy request management:
 
-#### **`get`**
-
-Handle `GET` requests:
+#### **`GET` Requests**
 
 ```javascript
 app.req_get("/path/get", async (req, res) => {
-  res.send("GET request received at '/path/get' route");
+  res.send("GET request received at '/path/get'");
 });
 ```
 
-#### **`post`**
-
-Handle `POST` requests:
+#### **`POST` Requests**
 
 ```javascript
 app.req_post("/path/post", async (req, res) => {
-  res.send("POST request received at '/path/post' route");
+  res.send("POST request received at '/path/post'");
 });
 ```
 
-#### **`put`**
-
-Handle `PUT` requests:
+#### **`PUT` Requests**
 
 ```javascript
 app.req_put("/path/put", async (req, res) => {
-  res.send("PUT request received at '/path/put' route");
+  res.send("PUT request received at '/path/put'");
 });
 ```
 
-#### **`delete`**
-
-Handle `DELETE` requests:
+#### **`DELETE` Requests**
 
 ```javascript
 app.req_delete("/path/delete", async (req, res) => {
-  res.send("DELETE request received at '/path/delete' route");
+  res.send("DELETE request received at '/path/delete'");
 });
 ```
 
-#### **`patch`**
-
-Handle `PATCH` requests:
+#### **`PATCH` Requests**
 
 ```javascript
 app.req_patch("/path/patch", async (req, res) => {
-  res.send("PATCH request received at '/path/patch' route");
+  res.send("PATCH request received at '/path/patch'");
 });
 ```
 
-#### **`head`**
-
-Handle `HEAD` requests:
+#### **`HEAD` Requests**
 
 ```javascript
 app.req_head("/path/head", async (req, res) => {
-  res.send("HEAD request received at '/path/head' route");
+  res.send("HEAD request received at '/path/head'");
 });
 ```
 
-#### **`options`**
-
-Handle `OPTIONS` requests:
+#### **`OPTIONS` Requests**
 
 ```javascript
 app.req_options("/path/options", async (req, res) => {
-  res.send("OPTIONS request received at '/path/options' route");
+  res.send("OPTIONS request received at '/path/options'");
 });
 ```
 
-- **URL path**: _(Defines the route for each request type)_
-- **req**: _(Request object from the server)_
-- **res**: _(Response object for sending replies)_
+Each request type has a defined route, a `req` object for the request data, and a `res` object for responses.
 
 ---
 
-### MIDDLEWARE HANDLING
+### Middleware Support
 
-cyro provides an advanced method for managing application middleware.
-
-- Middleware is executed in a chain, one after the other, until a response is sent, at which point the chain breaks.
-
-#### **`middleware`**
-
-This method allows you to add middleware functions to your application. If a response is sent within a middleware function, the chain will stop.
+**cyro** allows middleware chaining for better request handling:
 
 ```javascript
 app.middleware(async (req, res) => {
-  console.log("EXECUTING MIDDLEWARE 1");
-  console.log(`Request received: ${req.url}`); // Log each request's path
+  console.log("Middleware 1: Processing request", req.url);
 });
 
 app.middleware(async (req, res) => {
-  console.log("EXECUTING MIDDLEWARE 2");
-
-  res.send("Access Denied", 403); // set response
-  return; // Return after setting the response to end middleware execution
+  console.log("Middleware 2: Further processing");
+  res.send("Access Denied", 403);
+  return; // Stops further middleware execution
 });
 ```
 
-- **req**: _(request object from the server)_
-- **res**: _(response object for sending replies)_
+Middleware functions run sequentially, and the chain halts if a response is sent.
 
 ---
 
-### RESPONSE HANDLING
+### Sending Responses
 
-cyro provides methods for sending responses easily. To handle responses, you can follow two main concepts:
+**cyro** provides flexible methods to send responses:
 
-#### Concept 1: Use `.send` for All-in-One Handling
-
-The `.send` method is useful allowing you to set the body, status, and headers all in one call. cyro will automatically recognize the type of `body` and set the necessary headers for you, eliminating the need for further calls. If the body is `null`, no headers will be added.
-
-##### **Using `.send`**
+#### Concept 1: Unified Response with `.send`
 
 ```javascript
-// app.get("/concept1", async (req, res) => {
 res.send(body, status, headers);
-// });
 ```
 
-- **body**: _The response `Content-Type` header is automatically set based on the type of `body` (e.g., JSON, text, binary). If `body` is `null`, no headers will be set._
-- **status**: _Sets the HTTP status code (default is 200, but you can specify any other)._
-- **headers**: _Additional headers can be passed here as an object, though default headers are applied based on the type of `body`._
+- **body**: Automatically sets `Content-Type` based on the type.
+- **status**: Defaults to 200; can be customized.
+- **headers**: Additional headers can be provided as an object.
 
-> Using `.send` avoids the need for additional helper methods such as `.json`, `.text`, `.html`, and so on, making it a more efficient option for processing responses.
+#### Concept 2: Modular Methods
+
+```javascript
+res.text("Plain text response"); // Sets body and `Content-Type`
+res.status(404); // Custom status code
+res.header("Custom-Header", "Value"); // Single header or an object
+```
+
+This approach offers precise control over response elements.
 
 ---
 
-#### Concept 2: Set Elements Individually with Helper Methods
+### Sending Specific Response Types
 
-If you prefer a more modular approach, cyro has methods for setting certain aspects separately, allowing you more control over each component of the response.
-
-##### **Using `.text`, `.status`, and `.setHeader`**
+#### **JSON Responses**
 
 ```javascript
-// app.get("/concept2", async (req, res) => {
-res.text(body); // sets body and Content-Type to "text/plain"
-res.status(status); // sets HTTP status code
-res.header(headers, value); // send object without value, send single header with value
-// });
-
-// app.get("/concept2/new", async (req, res) => {
-res.text(body, status, headers); //set by all in one
-// });
+res.send({ message: "Hello, JSON!" });
+res.json({ message: "Explicit JSON response" });
 ```
 
-- **body**: _(string)_ Sets the body as plain text. Each helper method (like `.text`) automatically sets an appropriate `Content-Type`.
-- **status**: _Allows setting the HTTP status code independently._
-- **header**: _Pass additional headers as an object. You can also set a single header with a value by passing a string and its value._
-
-> Using individual methods gives you flexibility, but it requires managing each component separately. This approach is useful when you need fine-grained control over the response.
-
----
-
-#### **`Send JSON Responses`**
-
-You can send JSON responses using the following methods:
-
-**Method 1:** Using **`send`**
+#### **Plain Text Responses**
 
 ```javascript
-// app.get("/json", async (req, res) => {
-res.send({ message: "Hello, JSON!" }); // JSON response
-// });
+res.send("Hello, plain text!");
+res.text("Plain text response");
 ```
 
-**Method 2:** Using **`json`**
+#### **HTML Responses**
 
 ```javascript
-// app.get("/json-explicit", (req, res) => {
-res.json({ message: "Explicit JSON" }); // JSON response
-// });
+res.send("<h1>Hello, HTML!</h1>");
+res.html("<h1>HTML response</h1>");
 ```
 
-Both methods automatically set the `Content-Type` to `application/json` and handle JSON formatting for the response.
-
----
-
-#### **`Send Plain Text Responses`**
-
-You can send plain text responses using the following methods:
-
-**Method 1:** Using **`send`**
+#### **XML Responses**
 
 ```javascript
-// app.get("/text", async (req, res) => {
-res.send("Hello, plain text!"); // Plain text response
-// });
+res.send("<message>Hello, XML!</message>");
+res.xml("<message>XML response</message>");
 ```
 
-**Method 2:** Using **`text`**
+#### **Binary Data**
 
 ```javascript
-// app.get("/text-explicit", (req, res) => {
-res.text("Explicit plain text response."); // Plain text response
-// });
-```
-
-Both methods set the `Content-Type` to `text/plain`.
-
----
-
-#### **`Send HTML Responses`**
-
-You can send HTML responses using the following methods:
-
-**Method 1:** Using **`send`**
-
-```javascript
-// app.get("/html", async (req, res) => {
-res.send("<h1>Hello, HTML!</h1>"); // HTML response
-// });
-```
-
-**Method 2:** Using **`html`**
-
-```javascript
-// app.get("/html-explicit", (req, res) => {
-res.html("<h1>Explicit HTML response</h1>"); // HTML response
-// });
-```
-
-Both methods set the `Content-Type` to `text/html`.
-
----
-
-#### **`Send XML Responses`**
-
-You can send XML responses using the following methods:
-
-**Method 1:** Using **`send`**
-
-```javascript
-// app.get("/xml", async (req, res) => {
-res.send("<message>Hello, XML!</message>"); // XML response
-// });
-```
-
-**Method 2:** Using **`xml`**
-
-```javascript
-// app.get("/xml-explicit", (req, res) => {
-res.xml("<message>Explicit XML response</message>"); // XML response
-// });
-```
-
-Both methods set the `Content-Type` to `application/xml`.
-
----
-
-#### **`Send Binary Data`**
-
-You can send binary data using the following methods:
-
-**Method 1:** Using **`send`**
-
-```javascript
-// app.get("/binary", async (req, res) => {
-const binaryData = new Uint8Array([
+const data = new Uint8Array([
   /* binary data */
 ]);
-res.send(binaryData); // Binary data response
-// });
+res.send(data);
+res.binary(data);
 ```
 
-**Method 2:** Using **`binary`**
+#### **File Downloads**
 
 ```javascript
-// app.get("/binary-explicit", (req, res) => {
-const binaryData = new Uint8Array([
-  /* binary data */
-]);
-res.binary(binaryData); // Binary data response
-// });
-```
-
-Both methods set the `Content-Type` to `application/octet-stream`.
-
----
-
-#### **`Send File Downloads`**
-
-You can send files for download using the following methods:
-
-**Method 1:** Using **`send`**
-
-```javascript
-// app.get("/download", async (req, res) => {
 const fileData = new Uint8Array([
   /* file data */
 ]);
-res.send(fileData); // File download response
-// });
+res.file(fileData, "example.txt");
 ```
 
-**Method 2:** Using **`file`**
+#### **Redirects**
 
 ```javascript
-// app.get("/download-explicit", (req, res) => {
-const fileData = new Uint8Array([
-  /* file data */
-]);
-res.file(fileData, "example.txt"); // File download response with filename
-// });
+res.redirect("https://example.com");
 ```
-
-The `file` method sets the `Content-Disposition` header for downloading files.
 
 ---
 
-#### **`Send Redirect Responses`**
+### Addons
 
-You can send redirect responses using the following methods:
+**cyro** includes a built-in token system for creating and verifying tokens:
+
+#### Token Creation
 
 ```javascript
-// app.get("/redirect-explicit", (req, res) => {
-res.redirect("https://example.com"); // Redirect response
-// });
+const payload = { name: "y4z", email: "cyro@y4z.dev" };
+const secret = "mySecretKey";
+
+const token = await app.addon.token_create(payload, secret);
+console.log(token);
 ```
 
-The `redirect` method sets the `Location` header and the status code.
+#### Token Verification
+
+```javascript
+const token = "token_string_here";
+const data = await app.addon.token_verify(token, secret);
+console.log(data); // Returns data or `false` if invalid
+```
 
 ---
 
-# THANK YOU !
+# Thank You!
+
+---
+
+powered by y4z.dev
