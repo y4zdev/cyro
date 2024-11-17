@@ -201,6 +201,13 @@ class ResponseHandler {
    * @param {string} name - The cookie name.
    * @param {string} value - The cookie value.
    * @param {Object} options - Optional cookie options (e.g., expires, max-age, path).
+   * @param {Date} [options.expires] - The date the cookie will expire.
+   * @param {number} [options.maxAge] - The maximum age of the cookie in seconds.
+   * @param {string} [options.path] - The path where the cookie will be available.
+   * @param {string} [options.domain] - The domain where the cookie will be available.
+   * @param {boolean} [options.secure] - If true, the cookie will only be transmitted over a secure connection.
+   * @param {boolean} [options.httpOnly] - If true, the cookie will only be accessible by the web server, not by JavaScript.
+   * @param {string} [options.sameSite] - The SameSite policy for the cookie.
    */
   cookie(
     name,
