@@ -1,7 +1,3 @@
-Here's the revised README:
-
----
-
 # `PROJECT cyro`
 
 ### Overview of `cyro`
@@ -238,8 +234,21 @@ console.log(data); // Returns data or `false` if invalid
 
 ---
 
-# Thank You!
+**cyro** also includes an addon for retrieving form data from requests:
+
+#### Getting Form Data
+
+```javascript
+app.req_post("/form", async (req, res) => {
+  const formData = await app.addon.formtodata(req);
+  res.send(`Form data received: ${JSON.stringify(formData)}`);
+});
+```
+
+- **formtodata(req)**: This method extracts the form data from the `req` object (typically sent in `application/x-www-form-urlencoded` or `multipart/form-data` format) and returns it as a JavaScript object.
 
 ---
+
+# Thank You!
 
 powered by y4z.dev
