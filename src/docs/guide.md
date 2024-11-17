@@ -208,6 +208,17 @@ res.file(fileData, "example.txt");
 res.redirect("https://example.com");
 ```
 
+#### **Cookie**
+
+```javascript
+res.cookie("name", "value", {
+  httpOnly: true,
+  secure: true,
+  maxAge: 3600000,
+  // and more
+});
+```
+
 ---
 
 ### Addons
