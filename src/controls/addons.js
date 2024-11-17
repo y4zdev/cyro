@@ -1,5 +1,5 @@
 import { createToken, verifyToken } from "../addons/token/token.js";
-import formToData from "../addons/toform/toform.js";
+import formtodata from "../addons/toform/toform.js";
 
 class Addons {
   //>> TOKEN
