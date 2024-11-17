@@ -1,4 +1,5 @@
 import { createToken, verifyToken } from "../addons/token/token.js";
+import toForm from "../addons/toform/toform.js";
 
 class Addons {
   //>> TOKEN
@@ -24,6 +25,18 @@ class Addons {
    */
   token_verify(token, secret) {
     return verifyToken(token, secret);
+  }
+
+  //>> TOFORM
+
+  /**
+   * Retrieves form data from a request.
+   *
+   * @param {Request} req - The request object.
+   * @returns {Promise<object>} - Returns the parsed form object.
+   */
+  toform(req) {
+    return toForm(req);
   }
 }
 
