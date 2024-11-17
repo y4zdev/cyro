@@ -5,17 +5,23 @@
  * @returns {Promise<Object>} A promise that resolves to an object containing key-value pairs from the FormData.
  */
 
-async function toForm(req) {
-  //get data
+async function formtodata(req) {
   const formData = await req.formData();
 
-  // Convert FormData to an object
   const dataObj = {};
-  for (let [key, value] of formData.entries()) {
-    dataObj[key] = value;
+  for (const [key, value] of formData.entries()) {
+    if (key in dataObj) {
+      // Ensure the value is an array for multiple entries with the same key
+      if (!Array.isArray(dataObj[key])) {
+        dataObj[key] = [dataObj[key]];
+      }
+      dataObj[key].push(value);
+    } else {
+      dataObj[key] = value;
+    }
   }
 
   return dataObj;
 }
 
-export default toForm;
+export default formtodata;
