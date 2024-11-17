@@ -1,24 +1,43 @@
-import { serve } from "bun";
-import system from "./controls/system.js";
-import Addons from "./controls/addons.js";
+import ResponseHandler from "../handler/res/resHandler.js";
+import Middleware from "../handler/middleware/middlwareHandler.js";
+import Request from "../handler/req/reqHandler.js";
+import Routes from "../handler/routes/routesHandler.js";
+import Addons from "./addons.js";
 
-class App {
+class System {
   constructor() {
+    this.middleware = new Middleware();
+    this.routes = new Routes();
     this.addon = new Addons();
   }
 
-  //>> MIDDLEWARE
-
+  //> REQUESTS
   /**
-   * Adds a middleware function to the middleware chain.
+   * Request handler
    *
-   * @param {function} func - The middleware function that takes
+   * @param {Object} req - The request object
    */
-  middleware(func) {
-    system.middleware.use(func);
+  req(req) {
+    return Request(req, this.routes, this.middleware);
   }
 
-  //>> REQUEST METHODS
+  //> ROUTES
+  routes() {
+    return this.routes; // not use
+  }
+
+  //> MIDDLEWARE
+  middleware() {
+    return this.middleware; //not use
+  }
+
+  //> RESPONSES
+
+  res() {
+    return new ResponseHandler();
+  }
+
+  //REQUEST METHODS
 
   /**
    * Adds a GET route handler for the specified path.
@@ -28,7 +47,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_get(path, handler) {
-    system.req_get(path, handler);
+    this.routes.get(path, handler);
   }
 
   /**
@@ -39,7 +58,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_post(path, handler) {
-    system.req_post(path, handler);
+    this.routes.post(path, handler);
   }
 
   /**
@@ -50,7 +69,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_put(path, handler) {
-    system.req_put(path, handler);
+    this.routes.put(path, handler);
   }
 
   /**
@@ -61,7 +80,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_delete(path, handler) {
-    system.req_delete(path, handler);
+    this.routes.delete(path, handler);
   }
 
   /**
@@ -72,7 +91,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_patch(path, handler) {
-    system.req_patch(path, handler);
+    this.routes.patch(path, handler);
   }
 
   /**
@@ -83,7 +102,7 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_head(path, handler) {
-    system.req_head(path, handler);
+    this.routes.head(path, handler);
   }
 
   /**
@@ -94,43 +113,20 @@ class App {
    * three parameters: `req`, `res`, and `options`.
    */
   req_options(path, handler) {
-    system.req_options(path, handler);
+    this.routes.options(path, handler);
   }
 
   /**
    * Adds a route handler for the specified HTTP method and path.
    *
    * @param {string} method - The HTTP method to match.
-   * @param {string} path - The path to match. The path can contain parameter
-   * placeholders like `:param`, and the handler function will be passed an object
-   * with the parameter names as keys.
+   * @param {string} path - The path to match.
    * @param {function} handler - The route handler function that takes
-   * three parameters: `req`, `res`, and `params`. The `req` object
-   * will contain the request data in its `body` property, which is a
-   * `URLSearchParams` object. The `res` object is a `ResponseHandler`
-   * instance, and the `params` object is an object containing any
-   * URL parameters that were matched.
+   * three parameters: `req`, `res`, and `options`.
    */
   req_route(method, path, handler) {
-    system.req_route(method, path, handler);
-  }
-
-  //>> MAIN EVENTS
-
-  /**
-   * run the app
-   * @returns {void}
-   */
-  run() {
-    const server = serve({
-      port: 2772,
-      fetch: (req) => this.Request(req),
-    });
-  }
-
-  async Request(req) {
-    return await system.req(req);
+    this.routes.route(method, path, handler);
   }
 }
 
-export default App;
+export default new System();
