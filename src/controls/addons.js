@@ -1,5 +1,6 @@
 import { createToken, verifyToken } from "../addons/token/token.js";
 import formtodata from "../addons/toform/toform.js";
+import getCookies from "../addons/getcookies/getcookies.js";
 
 class Addons {
   //>> TOKEN
@@ -37,6 +38,19 @@ class Addons {
    */
   formtodata(req) {
     return formtodata(req);
+  }
+
+  //>> GETCOOKIES
+
+  /**
+   * Retrieves cookies from a request.
+   *
+   * @param {Request} req - The request object.
+   * @returns {Object|boolean} - Returns an object with cookie names as keys and their decoded values,
+   * or false if no cookies are sent.
+   */
+  getCookies(req) {
+    return getCookies(req);
   }
 }
 

@@ -260,6 +260,21 @@ app.req_post("/form", async (req, res) => {
 
 ---
 
+**cyro** also includes an addon for retrieving cookies from requests:
+
+#### Getting Cookies
+
+```javascript
+app.req_post("/cookies", async (req, res) => {
+  const cookies = await app.addon.getCookies(req);
+  res.send(`Cookies received: ${JSON.stringify(cookies)}`);
+});
+```
+
+- **getCookies(req)**: Extracts cookies from the `req` object and returns them as a JavaScript object.
+
+---
+
 # Thank You!
 
 powered by y4z.dev
