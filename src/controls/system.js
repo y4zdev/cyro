@@ -1,5 +1,5 @@
 import ResponseHandler from "../handler/res/resHandler.js";
-import Middleware from "../handler/middleware/middlwareHandler.js";
+import Middleware from "../handler/middleware/middlewareHandler.js";
 import Request from "../handler/req/reqHandler.js";
 import Routes from "../handler/routes/routesHandler.js";
 import Addons from "./addons.js";
