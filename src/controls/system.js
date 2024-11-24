@@ -3,12 +3,14 @@ import Middleware from "../handler/middleware/middlewareHandler.js";
 import Request from "../handler/req/reqHandler.js";
 import Routes from "../handler/routes/routesHandler.js";
 import Addons from "./addons.js";
+import Database from "../handler/database/database.js";
 
 class System {
   constructor() {
     this.middleware = new Middleware();
     this.routes = new Routes();
     this.addon = new Addons();
+    this.db = new Database();
   }
 
   //> REQUESTS

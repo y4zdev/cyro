@@ -1,10 +1,12 @@
 import { serve } from "bun";
 import system from "./controls/system.js";
 import Addons from "./controls/addons.js";
+import Database from "./handler/database/database.js";
 
 class App {
   constructor() {
     this.addon = new Addons();
+    this.db = new Database();
   }
 
   //>> MIDDLEWARE
