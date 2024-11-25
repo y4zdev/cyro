@@ -3,7 +3,7 @@ import Middleware from "../handler/middleware/middlewareHandler.js";
 import Request from "../handler/req/reqHandler.js";
 import Routes from "../handler/routes/routesHandler.js";
 import Addons from "./addons.js";
-import Database from "../handler/database/database.js";
+import Database from "./database.js";
 
 class System {
   constructor() {

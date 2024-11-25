@@ -1,7 +1,7 @@
 import { serve } from "bun";
 import system from "./controls/system.js";
 import Addons from "./controls/addons.js";
-import Database from "./handler/database/database.js";
+import Database from "./controls/database.js";
 
 class App {
   constructor() {
@@ -120,18 +120,15 @@ class App {
   //>> MAIN EVENTS
 
   /**
-   * run the app
+   * Runs the server on the specified port.
+   * @param {number} port - The port to listen on. Defaults to 2772.
    * @returns {void}
    */
-  run() {
+  run(port = 2772) {
     const server = serve({
-      port: 2772,
-      fetch: (req) => this.Request(req),
+      port: port,
+      fetch: (req) => system.req(req),
     });
-  }
-
-  async Request(req) {
-    return await system.req(req);
   }
 }
 

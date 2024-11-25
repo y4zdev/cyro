@@ -2,7 +2,7 @@ import { Database as SQLite } from "bun:sqlite";
 import { mkdirSync, existsSync } from "fs";
 import TableManager from "./table.js"; // Import TableManager
 
-class Database {
+class DatabaseHandler {
   constructor() {
     this.connection = null; //connection
     this.table = null; //table
@@ -304,4 +304,4 @@ class Database {
   }
 }
 
-export default Database;
+export default DatabaseHandler;
