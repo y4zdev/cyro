@@ -1,13 +1,16 @@
 import { Database as SQLite } from "bun:sqlite";
 import { mkdirSync, existsSync } from "fs";
-import TableManager from "./table.js"; // Import TableManager
+import TableManager from "./table.js";
+import system from "../../controls/system.js";
 
 class DatabaseHandler {
   constructor() {
-    this.connection = null; //connection
-    this.table = null; //table
+    this.connection = null;
+    this.table = null;
+
+    // Default settings
     this.log = true;
-    this.throwErr = true; // Throw errors by default
+    this.ignoreError = true;
   }
 
   /**
@@ -20,13 +23,17 @@ class DatabaseHandler {
     }
   }
 
+  static returnError(error) {
+    if (!this.ignoreError) throw error;
+  }
+
   /**
    * Initialize the database connection.
    * @param {string} path - Path to the SQLite database file.
    * @param {boolean} strict - Enforce strict mode for SQLite.
-   * @param {boolean} stopOnError - Stop on error for SQLite. (this will crash the app) IF YOU DON'T KNOW WHAT YOU'RE DOING, KEEP IT OFF
+   * @param {boolean} ignoreErrors - Ignore SQLite errors. If set to false, any error will crash the app. By default, errors are ignored.
    */
-  init(path = "./database/cyro.db", strict = true, stopOnError = false) {
+  init(path = "./database/cyro.db", strict = true, ignoreErrors = true) {
     try {
       if (typeof path !== "string" || path.trim() === "") {
         throw new Error("Invalid database path.");
@@ -40,14 +47,14 @@ class DatabaseHandler {
         this.log && console.log(`DATABASE: Directory created at ${dir}`);
       }
 
-      this.throwErr = stopOnError;
+      this.ignoreError = !ignoreErrors;
 
       this.connection = new SQLite(dbFilePath, { strict });
-      this.table = new TableManager(this, this.log, this.throwErr);
+      this.table = new TableManager(this, this.log, this.ignoreError);
       this.log && console.log(`DATABASE: Connected at ${dbFilePath}`);
     } catch (error) {
-      console.error(`![DATABASE] : Failed to initialize - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to initialize", error);
+      returnError(error);
     }
   }
 
@@ -81,8 +88,8 @@ class DatabaseHandler {
       this.log && console.log(`DATABASE: Data inserted into '${tableName}'.`);
       return true;
     } catch (error) {
-      console.error(`![DATABASE] : Failed to insert data - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to insert data", error);
+      returnError(error);
     }
   }
 
@@ -123,8 +130,8 @@ class DatabaseHandler {
       this.log && console.log(`DATABASE: Data updated in '${tableName}'.`);
       return true;
     } catch (error) {
-      console.error(`![DATABASE] : Failed to update data - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to update data", error);
+      returnError(error);
     }
   }
 
@@ -150,8 +157,8 @@ class DatabaseHandler {
       this.log && console.log(`DATABASE: Data deleted from '${tableName}'.`);
       return true;
     } catch (error) {
-      console.error(`![DATABASE] : Failed to delete data - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to delete data", error);
+      returnError(error);
     }
   }
 
@@ -233,13 +240,11 @@ class DatabaseHandler {
       const query = `SELECT ${selectedColumns} FROM ${tableName} ${whereClause} ${orderClause} ${limitClause}`;
       const rows = this.connection.prepare(query).all(...filterValues);
 
-      this.log && console.log(`DATABASE: Query executed - ${query}`);
+      this.log && console.log(`DATABASE: Query executed -${query}`);
       return rows || [];
     } catch (error) {
-      console.error(
-        `![DATABASE] : Failed to execute SELECT query - ${error.message}`
-      );
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to execute SELECT query", error);
+      returnError(error);
     }
   }
 
@@ -276,8 +281,8 @@ class DatabaseHandler {
       }
       return result || null;
     } catch (error) {
-      console.error(`![DATABASE] : Failed to fetch data - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to fetch data", error);
+      returnError(error);
     }
   }
 
@@ -296,10 +301,8 @@ class DatabaseHandler {
         console.log("DATABASE: Connection successfully closed.");
       }
     } catch (error) {
-      console.error(
-        `![DATABASE] : Failed to close connection - ${error.message}`
-      );
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to close connection", error);
+      returnError(error);
     }
   }
 }

@@ -9,14 +9,14 @@ The **Cyro** framework includes a built-in serverless database system powered by
 To connect to or initialize a database, use the following method:
 
 ```javascript
-app.db.init(path, strictMode, stopOnError);
+app.db.init(path, strictMode, ignoreErrors);
 ```
 
 - **`path`**: The path to the database file (e.g., `./database/main.db`). If the file doesn't exist, it will be automatically created.
 - **`strictMode`**: _(Optional)_ Defaults to `true`. Enables strict validation for operations, ensuring that errors are raised for undefined tables or columns.
-- **`stopOnError`**: _(Optional)_ Defaults to `false`. If set to `true`, errors will throw and stop execution.
+- **`ignoreErrors`**: _(Optional)_ Defaults to `true`. If set to `false`, errors will throw and stop execution.
 
-> **Note:** If `stopOnError` is set to `true` and errors are not caught, your application may crash.
+> **Note:** If `ignoreErrors` is set to `false` and errors are not caught, your application may crash.
 
 **Example:**
 
@@ -212,14 +212,14 @@ app.db.close();
 
 ### Error Handling
 
-Cyro's database system provides automatic error handling. When `stopOnError` is set to `false`, operations that fail (e.g., inserting into a non-existent table) will result in an error being thrown, but the application will continue running unless explicitly handled.
+Cyro's database system provides automatic error handling. When `ignoreErrors` is set to `true`, operations that fail (e.g., inserting into a non-existent table) will result in an error being thrown, but the application will continue running unless explicitly handled.
 
 **Important Notes:**
 
 - By default, **strict mode is enabled**, ensuring that invalid operations result in immediate errors.
-- By default, **stopOnError is disabled**, meaning errors are silently ignored unless explicitly handled.
+- By default, **ignoreErrors is enabled**, meaning errors are silently ignored unless explicitly handled.
 
-**Example with `stopOnError` set to `true`:**
+**Example with `ignoreErrors` set to `false`:**
 
 - Use **`try...catch`** blocks to handle errors gracefully.
 - Log errors to help with debugging.

@@ -11,10 +11,10 @@ class Database {
    * Initialize the database connection.
    * @param {string} path - Path to the SQLite database file.
    * @param {boolean} strict - Enforce strict mode for SQLite.
-   * @param {boolean} stopOnError - Stop on error for SQLite. (this will crash the app) IF YOU DON'T KNOW WHAT YOU'RE DOING, KEEP IT OFF
+   * @param {boolean} ignoreErrors - Ignore SQLite errors. If set to false, any error will crash the app. By default, errors are ignored.
    */
-  init(path = "./database/cyro.db", strict = true, stopOnError = false) {
-    this.#handler.init(path, strict, stopOnError);
+  init(path = "./database/cyro.db", strict = true, ignoreErrors = true) {
+    this.#handler.init(path, strict, ignoreErrors);
   }
 
   /**
