@@ -23,6 +23,10 @@ class DatabaseHandler {
     }
   }
 
+  /**
+   * Handle errors and decide whether to throw or ignore them.
+   * @param {Error} error - The error to handle.
+   */
   static returnError(error) {
     if (!this.ignoreError) throw error;
   }

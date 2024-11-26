@@ -1,8 +1,10 @@
+import system from "../../controls/system.js";
+
 class TableManager {
-  constructor(database, log = false, throwErr = true) {
+  constructor(database, log = false, ignoreErrors = true) {
     this.database = database; //database connection
     this.log = log;
-    this.throwErr = throwErr;
+    this.ignoreError = ignoreErrors;
   }
 
   /**
@@ -14,6 +16,14 @@ class TableManager {
   validateTableName(tableName) {
     const validNamePattern = /^[a-zA-Z0-9_]+$/;
     return typeof tableName === "string" && validNamePattern.test(tableName);
+  }
+
+  /**
+   * Handle errors and decide whether to throw or ignore them.
+   * @param {Error} error - The error to handle.
+   */
+  static returnError(error) {
+    if (!this.ignoreError) throw error;
   }
 
   /**
@@ -35,10 +45,8 @@ class TableManager {
       const result = this.database.connection.prepare(query).get(tableName);
       return !!result;
     } catch (error) {
-      console.error(
-        `![DATABASE] : Failed to check table existence - ${error.message}`
-      );
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to check table existence", error);
+      returnError(error);
     }
   }
 
@@ -73,8 +81,8 @@ class TableManager {
       this.log &&
         console.log(`DATABASE: Table '${tableName}' created successfully.`);
     } catch (error) {
-      console.error(`![DATABASE] : Failed to create table - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to create table", error);
+      returnError(error);
     }
   }
 
@@ -96,8 +104,8 @@ class TableManager {
       this.log &&
         console.log(`DATABASE: Table '${tableName}' dropped successfully.`);
     } catch (error) {
-      console.error(`![DATABASE] : Failed to drop table - ${error.message}`);
-      if (this.throwErr) throw error;
+      system.error("DATABASE", "Failed to drop table", error);
+      returnError(error);
     }
   }
 }
