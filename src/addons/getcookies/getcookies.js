@@ -1,3 +1,5 @@
+import system from "../../controls/system.js";
+
 /**
  * Extracts cookies from the request and returns them as an object.
  *
@@ -7,15 +9,28 @@
  */
 
 function getCookies(req) {
-  const cookieHeader = req.headers.get("cookie");
-  if (!cookieHeader) return false; // Return false if no cookies are sent
+  try {
+    if (!req || !req.headers || typeof req.headers.get !== "function") {
+      throw new Error("Invalid request object");
+    }
 
-  return Object.fromEntries(
-    cookieHeader.split("; ").map((cookie) => {
-      const [name, value] = cookie.split("=");
-      return [name, decodeURIComponent(value)];
-    })
-  );
+    const cookieHeader = req.headers.get("cookie");
+    if (!cookieHeader) return false; // Return false if no cookies are sent
+
+    // Parse and decode cookies
+    return Object.fromEntries(
+      cookieHeader.split("; ").map((cookie) => {
+        const [name, value] = cookie.split("=");
+        if (!name || value === undefined) {
+          throw new Error("Malformed cookie");
+        }
+        return [name, decodeURIComponent(value)];
+      })
+    );
+  } catch (error) {
+    system.error("addons/getcookies", "parsing cookies", error);
+    return false; // Return false if any error occurs
+  }
 }
 
 export default getCookies;

@@ -125,10 +125,14 @@ class App {
    * @returns {void}
    */
   run(port = 2772) {
-    const server = serve({
-      port: port,
-      fetch: (req) => system.req(req),
-    });
+    try {
+      const server = serve({
+        port: port,
+        fetch: (req) => system.req(req),
+      });
+    } catch (err) {
+      system.error("app", "starting server failed", err);
+    }
   }
 }
 

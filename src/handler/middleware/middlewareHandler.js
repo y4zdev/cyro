@@ -1,3 +1,5 @@
+import system from "../../controls/system.js";
+
 class MiddlewareHandler {
   constructor() {
     this.middlewares = [];
@@ -12,6 +14,9 @@ class MiddlewareHandler {
    * middleware function should return a promise or void.
    */
   use(middleware) {
+    if (typeof middleware !== "function") {
+      throw new Error("Middleware must be a function");
+    }
     this.middlewares.push(middleware);
   }
 
@@ -20,19 +25,25 @@ class MiddlewareHandler {
    *
    * @param {Object} req - The request object
    * @param {Object} res - The response object
-   * @returns {Promise}
+   * @returns {Promise<Object|null>} Resolves to the response object if a middleware finishes it,
+   * or null if no middleware ends the response.
    */
   async applyMiddlewares(req, res) {
     try {
       for (const middleware of this.middlewares) {
-        await middleware(req, res);
-        if (res.finished) {
-          return res; // Explicitly return the response if finished
+        try {
+          await middleware(req, res);
+          if (res.finished) {
+            return res; // Explicitly return the response if finished
+          }
+        } catch (error) {
+          system.error("MIDDLEWARE", "Error in middleware", error);
+          return res.send("Internal Server Error", 500);
         }
       }
       return null; // Return null only if no middleware ends the response
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      system.error("MIDDLEWARE", "Unexpected error in applyMiddlewares", error);
     }
   }
 }

@@ -1,3 +1,5 @@
+import system from "../../controls/system.js";
+
 // Base64Url encode function
 function base64UrlEncode(str) {
   return btoa(str).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
@@ -5,36 +7,48 @@ function base64UrlEncode(str) {
 
 // Base64Url decode function
 function base64UrlDecode(str) {
-  str = str.replace(/-/g, "+").replace(/_/g, "/");
-  while (str.length % 4 !== 0) {
-    str += "=";
+  try {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4 !== 0) {
+      str += "=";
+    }
+    return atob(str);
+  } catch (error) {
+    system.error("addons/token", "decoding Base64Url", error);
+    return null;
   }
-  return atob(str);
 }
 
 // Function to create HMAC SHA-256 signature
 async function createHmacSha256(data, secret) {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(secret);
-  const dataToSign = encoder.encode(data);
-  const key = await crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: { name: "SHA-256" } },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
-  const byteArray = new Uint8Array(signature);
-  let binary = "";
-  for (let i = 0; i < byteArray.byteLength; i++) {
-    binary += String.fromCharCode(byteArray[i]);
+  try {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const dataToSign = encoder.encode(data);
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: { name: "SHA-256" } },
+      false,
+      ["sign"]
+    );
+
+    const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
+    const byteArray = new Uint8Array(signature);
+    let binary = "";
+    for (let i = 0; i < byteArray.byteLength; i++) {
+      binary += String.fromCharCode(byteArray[i]);
+    }
+    return base64UrlEncode(binary);
+  } catch (error) {
+    system.error("addons/token", "creating HMAC SHA-256 signature", error);
+    return null;
   }
-  return base64UrlEncode(binary);
 }
 
 /**
- * Creates a  Token  with the given payload and a signature generated
+ * Creates a token with the given payload and a signature generated
  * using the HMAC SHA-256 algorithm with the given secret.
  *
  * @param {object} payload - The payload to be signed.
@@ -42,23 +56,32 @@ async function createHmacSha256(data, secret) {
  * @returns {Promise<string>} - Returns the token.
  */
 async function createToken(payload, secret) {
-  const header = {
-    alg: "HS256",
-    typ: "CYRO",
-  };
+  try {
+    if (typeof payload !== "object" || !secret) {
+      throw new Error("Invalid payload or secret");
+    }
 
-  // Encode header and payload
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+    const header = {
+      alg: "HS256",
+      typ: "CYRO",
+    };
 
-  // Create the signature
-  const signature = await createHmacSha256(
-    `${encodedHeader}.${encodedPayload}`,
-    secret
-  );
+    // Encode header and payload
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
 
-  // Return the complete token
-  return `${encodedHeader}.${encodedPayload}.${signature}`;
+    // Create the signature
+    const signature = await createHmacSha256(
+      `${encodedHeader}.${encodedPayload}`,
+      secret
+    );
+
+    // Return the complete token
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+  } catch (error) {
+    system.error("addons/token", "creating token", error);
+    return null;
+  }
 }
 
 /**
@@ -66,24 +89,44 @@ async function createToken(payload, secret) {
  *
  * @param {string} token - The token to be verified.
  * @param {string} secret - The secret key used to verify the token's signature.
- * @returns {Promise<object>} - Returns the decoded payload if the token is valid, or false if the token is invalid.
+ * @returns {Promise<object|boolean>} - Returns the decoded payload if the token is valid, or false if invalid.
  */
 async function verifyToken(token, secret) {
-  const [encodedHeader, encodedPayload, givenSignature] = token.split(".");
+  try {
+    if (!token || !secret) {
+      throw new Error("Token or secret is missing");
+    }
 
-  // Decode header and payload
-  const decodedPayload = JSON.parse(base64UrlDecode(encodedPayload));
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      throw new Error("Invalid token format");
+    }
 
-  // Verify the signature
-  const expectedSignature = await createHmacSha256(
-    `${encodedHeader}.${encodedPayload}`,
-    secret
-  );
+    const [encodedHeader, encodedPayload, givenSignature] = parts;
 
-  // Return
-  if (expectedSignature === givenSignature) {
-    return decodedPayload;
-  } else {
+    // Decode header and payload
+    const decodedPayload = base64UrlDecode(encodedPayload);
+    if (!decodedPayload) {
+      throw new Error("Failed to decode payload");
+    }
+
+    const parsedPayload = JSON.parse(decodedPayload);
+
+    // Verify the signature
+    const expectedSignature = await createHmacSha256(
+      `${encodedHeader}.${encodedPayload}`,
+      secret
+    );
+
+    // Compare signatures
+    if (expectedSignature === givenSignature) {
+      return parsedPayload;
+    } else {
+      // console.warn("Signature mismatch");
+      return false;
+    }
+  } catch (error) {
+    system.error("addons/token", "verifying token", error);
     return false;
   }
 }
