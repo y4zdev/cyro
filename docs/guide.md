@@ -127,6 +127,69 @@ Middleware functions run sequentially, and the chain halts if a response is sent
 
 ---
 
+### Retrieve Parameters
+
+Cyro provides built-in methods to retrieve request parameters easily. These include **query parameters** and **dynamic route parameters**.
+
+#### Query Parameters
+
+Query parameters can be accessed using `option.query`. Here's an example:
+
+```javascript
+app.req_get("/queryparam", (req, res, option) => {
+  // Access query parameters
+  console.log(option.query);
+
+  // Example usage
+  res.send(`Query received: ${JSON.stringify(option.query)}`);
+});
+```
+
+**Example Request:**
+
+```http
+GET /queryparam?name=John&age=25
+```
+
+**Output:**
+
+```javascript
+{
+  name: "John",
+  age: "25"
+}
+```
+
+---
+
+#### Dynamic Route Parameters
+
+Dynamic route parameters can be accessed using `option.dynamic`. Here's an example:
+
+```javascript
+app.req_get("/queryparam/:id", (req, res, option) => {
+  // Access dynamic route parameter
+  console.log(option.dynamic.id);
+
+  // Example usage
+  res.send(`Dynamic parameter received: ${option.dynamic.id}`);
+});
+```
+
+**Example Request:**
+
+```http
+GET /queryparam/123
+```
+
+**Output:**
+
+```javascript
+123;
+```
+
+---
+
 ### Sending Responses
 
 **cyro** provides flexible methods to send responses:
