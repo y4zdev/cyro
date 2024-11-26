@@ -4,6 +4,7 @@ import Request from "../handler/req/reqHandler.js";
 import Routes from "../handler/routes/routesHandler.js";
 import Addons from "./addons.js";
 import Database from "./database.js";
+import errHandler from "../handler/error/errorHandler.js";
 
 class System {
   constructor() {
@@ -39,7 +40,7 @@ class System {
     return new ResponseHandler();
   }
 
-  //REQUEST METHODS
+  //> REQUEST METHODS
 
   /**
    * Adds a GET route handler for the specified path.
@@ -128,6 +129,19 @@ class System {
    */
   req_route(method, path, handler) {
     this.routes.route(method, path, handler);
+  }
+
+  //> ERRORS
+
+  /**
+   * Handles an error.
+   *
+   * @param {string} where - The location of the error.
+   * @param {string} why - The reason for the error.
+   * @param {Error} err - The error object.
+   */
+  error(where, why, err) {
+    errHandler.print(where, why, err);
   }
 }
 
