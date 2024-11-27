@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "outDir": "./dist",
+
+    // add dependencies
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "downlevelIteration": true,
+    "types": ["bun-types"]
+  }
+}

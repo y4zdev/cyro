@@ -1,15 +1,17 @@
-import { Database as SQLite } from "bun:sqlite";
+import SQLite from "bun:sqlite";
 import { mkdirSync, existsSync } from "fs";
 import TableManager from "./table.js";
 import system from "../../controls/system.js";
 
 class DatabaseHandler {
   constructor() {
+    /** @type {SQLite | null} */
     this.connection = null;
+    /** @type {TableManager | null} */
     this.table = null;
-
-    // Default settings
+    /** @type {boolean} */
     this.log = true;
+    /** @type {boolean} */
     this.ignoreError = true;
   }
 
@@ -25,9 +27,9 @@ class DatabaseHandler {
 
   /**
    * Handle errors and decide whether to throw or ignore them.
-   * @param {Error} error - The error to handle.
+   * @param {Error|unknown} error - The error to handle.
    */
-  static returnError(error) {
+  returnError(error) {
     if (!this.ignoreError) throw error;
   }
 
@@ -58,7 +60,7 @@ class DatabaseHandler {
       this.log && console.log(`DATABASE: Connected at ${dbFilePath}`);
     } catch (error) {
       system.error("DATABASE", "Failed to initialize", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -66,10 +68,11 @@ class DatabaseHandler {
    * Insert data into a table.
    * @param {string} tableName - Name of the table.
    * @param {object} data - Data to insert (e.g., { column: value }).
+   * @returns {boolean|undefined} - True if the insertion is successful.
    */
   insert(tableName, data) {
     try {
-      Database.validateIdentifier(tableName);
+      DatabaseHandler.validateIdentifier(tableName);
       if (!data || typeof data !== "object" || Array.isArray(data)) {
         throw new Error("Data must be a non-array object.");
       }
@@ -79,7 +82,7 @@ class DatabaseHandler {
         throw new Error("Data object must have at least one property.");
       }
 
-      keys.forEach(Database.validateIdentifier);
+      keys.forEach((key) => DatabaseHandler.validateIdentifier(key));
 
       const placeholders = keys.map(() => "?").join(", ");
       const values = Object.values(data);
@@ -88,12 +91,15 @@ class DatabaseHandler {
         ", "
       )}) VALUES (${placeholders})`;
 
+      if (!this.connection) {
+        throw new Error("No active database connection.");
+      }
       this.connection.prepare(query).run(...values);
       this.log && console.log(`DATABASE: Data inserted into '${tableName}'.`);
       return true;
     } catch (error) {
       system.error("DATABASE", "Failed to insert data", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -102,10 +108,11 @@ class DatabaseHandler {
    * @param {string} tableName - Name of the table.
    * @param {object} data - Data to update (e.g., { column: value }).
    * @param {object} filters - Key-value pairs for WHERE conditions.
+   * @returns {boolean|undefined} - True if the update is successful.
    */
   update(tableName, data, filters = {}) {
     try {
-      Database.validateIdentifier(tableName);
+      DatabaseHandler.validateIdentifier(tableName);
 
       if (!data || typeof data !== "object" || Array.isArray(data)) {
         throw new Error("Data must be a non-array object.");
@@ -116,7 +123,7 @@ class DatabaseHandler {
         throw new Error("Data object must have at least one property.");
       }
 
-      keys.forEach(Database.validateIdentifier);
+      keys.forEach((key) => DatabaseHandler.validateIdentifier(key));
 
       const setClause = keys.map((key) => `${key} = ?`).join(", ");
       const values = Object.values(data);
@@ -129,13 +136,17 @@ class DatabaseHandler {
         : "";
 
       const query = `UPDATE ${tableName} SET ${setClause} ${whereClause}`;
+
+      if (!this.connection) {
+        throw new Error("No active database connection.");
+      }
       this.connection.prepare(query).run(...values, ...filterValues);
 
       this.log && console.log(`DATABASE: Data updated in '${tableName}'.`);
       return true;
     } catch (error) {
       system.error("DATABASE", "Failed to update data", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -143,10 +154,11 @@ class DatabaseHandler {
    * Delete data from a table.
    * @param {string} tableName - Name of the table.
    * @param {object} filters - Key-value pairs for WHERE conditions.
+   * @returns {boolean|undefined} - True if the deletion is successful.
    */
   delete(tableName, filters = {}) {
     try {
-      Database.validateIdentifier(tableName);
+      DatabaseHandler.validateIdentifier(tableName);
 
       const filterKeys = Object.keys(filters);
       const filterValues = Object.values(filters);
@@ -156,31 +168,43 @@ class DatabaseHandler {
         : "";
 
       const query = `DELETE FROM ${tableName} ${whereClause}`;
+
+      if (!this.connection) {
+        throw new Error("No active database connection.");
+      }
       this.connection.prepare(query).run(...filterValues);
 
       this.log && console.log(`DATABASE: Data deleted from '${tableName}'.`);
       return true;
     } catch (error) {
       system.error("DATABASE", "Failed to delete data", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
   /**
+   * @typedef {Object} QueryOptions
+   * @property {string | string[]} [columns] - Columns to select.
+   * @property {Record<string, any>} [filters] - Filter conditions as key-value pairs.
+   * @property {string} [limit] - Maximum number of rows to return.
+   * @property {Array<{column: string, direction: "ASC" | "DESC"}>} [orderBy] - Columns and sort order.
+   */
+
+  /**
    * Select data from a table with advanced querying options.
    * @param {string} tableName - Name of the table.
-   * @param {object} options - Query options: columns, filters, limit, orderBy.
-   * @returns {Array<object>} - Array of rows matching the query.
+   * @param {QueryOptions} [options={}] - Query options.
+   * @returns {Array<object>|undefined} - Array of rows matching the query.
    */
   select(tableName, options = {}) {
     try {
-      Database.validateIdentifier(tableName);
+      DatabaseHandler.validateIdentifier(tableName);
 
       const {
-        columns = "*", // Default to all columns
-        filters = {}, // Object with conditions for WHERE clause
-        limit, // Maximum number of rows to fetch
-        orderBy = [], // Array of { column: string, direction: "ASC" | "DESC" }
+        columns = "*",
+        filters = {},
+        limit = undefined,
+        orderBy = [],
       } = options;
 
       // Validate and format selected columns
@@ -188,7 +212,7 @@ class DatabaseHandler {
         Array.isArray(columns) && columns.length
           ? columns
               .map((col) => {
-                Database.validateIdentifier(col);
+                DatabaseHandler.validateIdentifier(col);
                 return col;
               })
               .join(", ")
@@ -196,7 +220,9 @@ class DatabaseHandler {
 
       // Build WHERE clause
       const filterKeys = Object.keys(filters);
+      /**@type {string[]} */
       const filterConditions = [];
+      /**@type {string[]} */
       const filterValues = [];
 
       filterKeys.forEach((key) => {
@@ -214,7 +240,7 @@ class DatabaseHandler {
           filterValues.push(val);
         } else {
           // Default to equality if no operator is provided
-          Database.validateIdentifier(key);
+          DatabaseHandler.validateIdentifier(key);
           filterConditions.push(`${key} = ?`);
           filterValues.push(value);
         }
@@ -229,7 +255,7 @@ class DatabaseHandler {
         Array.isArray(orderBy) && orderBy.length
           ? `ORDER BY ${orderBy
               .map((order) => {
-                Database.validateIdentifier(order.column);
+                DatabaseHandler.validateIdentifier(order.column);
                 const direction =
                   order.direction?.toUpperCase() === "DESC" ? "DESC" : "ASC";
                 return `${order.column} ${direction}`;
@@ -242,13 +268,17 @@ class DatabaseHandler {
 
       // Final SQL query
       const query = `SELECT ${selectedColumns} FROM ${tableName} ${whereClause} ${orderClause} ${limitClause}`;
+
+      if (!this.connection) {
+        throw new Error("No active database connection.");
+      }
       const rows = this.connection.prepare(query).all(...filterValues);
 
-      this.log && console.log(`DATABASE: Query executed -${query}`);
+      this.log && console.log(`DATABASE: Query executed - ${query}`);
       return rows || [];
     } catch (error) {
       system.error("DATABASE", "Failed to execute SELECT query", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -256,11 +286,11 @@ class DatabaseHandler {
    * Get a single row from a table based on filters.
    * @param {string} tableName - Name of the table.
    * @param {object} filters - Key-value pairs for WHERE conditions.
-   * @returns {object|null} - The first matching row or null.
+   * @returns {object|undefined} - The first matching row or null.
    */
   get(tableName, filters = {}) {
     try {
-      Database.validateIdentifier(tableName);
+      DatabaseHandler.validateIdentifier(tableName);
 
       if (typeof filters !== "object" || Array.isArray(filters)) {
         throw new Error("Filters must be a non-array object.");
@@ -270,7 +300,7 @@ class DatabaseHandler {
       const values = Object.values(filters);
 
       // Ensure all column names are valid
-      keys.forEach(Database.validateIdentifier);
+      keys.forEach((key) => DatabaseHandler.validateIdentifier(key));
 
       const whereClause = keys.length
         ? `WHERE ${keys.map((col) => `${col} = ?`).join(" AND ")}`
@@ -278,6 +308,9 @@ class DatabaseHandler {
 
       const query = `SELECT * FROM ${tableName} ${whereClause} LIMIT 1`;
 
+      if (!this.connection) {
+        throw new Error("No active database connection.");
+      }
       const result = this.connection.prepare(query).get(...values);
 
       if (!result) {
@@ -286,7 +319,7 @@ class DatabaseHandler {
       return result || null;
     } catch (error) {
       system.error("DATABASE", "Failed to fetch data", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -306,7 +339,7 @@ class DatabaseHandler {
       }
     } catch (error) {
       system.error("DATABASE", "Failed to close connection", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 }

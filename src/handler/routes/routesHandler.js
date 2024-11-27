@@ -1,7 +1,41 @@
 import system from "../../controls/system.js";
 
+/**
+ * @typedef {Object} Request
+ * @property {string} method - HTTP method of the request.
+ * @property {string} url - Request URL.
+ * @property {object} headers - Request headers.
+ * @property {any} body - Request body.
+ */
+
+/**
+ * @typedef {Object} ResponseHandler
+ * @property {function(number): ResponseHandler} status - Sets the response status code and returns the response handler.
+ * @property {number} statusCode - The HTTP status code.
+ * @property {Object} headers - The headers of the response.
+ * @property {string} body - The body of the response.
+ * @property {boolean} finished - Whether the response is finished.
+ * @property {Function} setHeader - Function to set a header in the response.
+ * @property {Function} send - Function to send the response body.
+ * @property {Function} end - Function to end the response.
+ * @property {Function} header - Sets a header for the response.
+ * @property {Function} json - Sends a JSON response.
+ * @property {Function} text - Sends a plain text response.
+ * @property {Function} html - Sends an HTML response.
+ */
+
+/**
+ * @callback RouteHandler
+ * @param {Request} req - Request object.
+ * @param {ResponseHandler} res - Response handler object.
+ * @param {{ [key: string]: string }} params - Route parameters.
+ */
+
 class RoutesHandler {
   constructor() {
+    /**
+     * @type {{ [method: string]: { regex: RegExp, keys: string[], handler: RouteHandler }[] }}
+     */
     this.routes = {
       GET: [],
       POST: [],
@@ -11,6 +45,10 @@ class RoutesHandler {
       HEAD: [],
       OPTIONS: [],
     };
+
+    /**
+     * @type {string[]}
+     */
     this.supportedMethods = Object.keys(this.routes); // Dynamically infer supported methods
   }
 
@@ -19,7 +57,7 @@ class RoutesHandler {
    *
    * @param {string} method - HTTP method (GET, POST, etc.).
    * @param {string} path - Route path, can contain parameters like `:param`.
-   * @param {function} handler - Function to handle the route.
+   * @param {RouteHandler} handler - Function to handle the route.
    */
   route(method, path, handler) {
     try {
@@ -54,8 +92,8 @@ class RoutesHandler {
    *
    * @param {string} method - HTTP method of the request.
    * @param {string} path - Path of the request.
-   * @param {object} req - Request object.
-   * @param {object} res - ResponseHandler instance.
+   * @param {Request} req - Request object.
+   * @param {ResponseHandler} res - ResponseHandler instance.
    */
   handleRequest(method, path, req, res) {
     try {
@@ -87,7 +125,7 @@ class RoutesHandler {
   /**
    * Adds a GET route handler.
    * @param {string} path - Path for the GET request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   get(path, handler) {
     this.route("GET", path, handler);
@@ -96,7 +134,7 @@ class RoutesHandler {
   /**
    * Adds a POST route handler.
    * @param {string} path - Path for the POST request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   post(path, handler) {
     this.route("POST", path, handler);
@@ -105,7 +143,7 @@ class RoutesHandler {
   /**
    * Adds a PUT route handler.
    * @param {string} path - Path for the PUT request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   put(path, handler) {
     this.route("PUT", path, handler);
@@ -114,7 +152,7 @@ class RoutesHandler {
   /**
    * Adds a DELETE route handler.
    * @param {string} path - Path for the DELETE request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   delete(path, handler) {
     this.route("DELETE", path, handler);
@@ -123,7 +161,7 @@ class RoutesHandler {
   /**
    * Adds a PATCH route handler.
    * @param {string} path - Path for the PATCH request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   patch(path, handler) {
     this.route("PATCH", path, handler);
@@ -132,7 +170,7 @@ class RoutesHandler {
   /**
    * Adds a HEAD route handler.
    * @param {string} path - Path for the HEAD request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   head(path, handler) {
     this.route("HEAD", path, handler);
@@ -141,7 +179,7 @@ class RoutesHandler {
   /**
    * Adds an OPTIONS route handler.
    * @param {string} path - Path for the OPTIONS request.
-   * @param {function} handler - Route handler function.
+   * @param {RouteHandler} handler - Route handler function.
    */
   options(path, handler) {
     this.route("OPTIONS", path, handler);
@@ -154,6 +192,7 @@ class RoutesHandler {
    * @returns {{ regex: RegExp, keys: string[] }}
    */
   _convertPathToRegex(path) {
+    /** @type {string[]} keys */
     const keys = [];
     const regexString = path
       .replace(/:([^\/]+)/g, (_, key) => {
@@ -170,7 +209,7 @@ class RoutesHandler {
    *
    * @param {string} method - HTTP method.
    * @param {string} path - Request path.
-   * @returns {object|null} The matching route or null.
+   * @returns {{ regex: RegExp, keys: string[], handler: RouteHandler } | null} The matching route or null.
    */
   _matchRoute(method, path) {
     return this.routes[method].find((route) => route.regex.test(path)) || null;
@@ -179,17 +218,17 @@ class RoutesHandler {
   /**
    * Extracts URL parameters from a matched route.
    *
-   * @param {string[]} keys - Parameter keys.
+   * @param {string[]} keys - Array of parameter keys.
    * @param {RegExp} regex - Path regex.
    * @param {string} path - Request path.
-   * @returns {object} Object containing extracted parameters.
+   * @returns {{ [key: string]: string }} Object containing extracted parameters.
    */
   _extractParams(keys, regex, path) {
     const values = path.match(regex)?.slice(1) || [];
     return keys.reduce((params, key, index) => {
       params[key] = values[index];
       return params;
-    }, {});
+    }, /** @type {{ [key: string]: string }} */ ({}));
   }
 }
 

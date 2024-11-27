@@ -2,6 +2,7 @@ import system from "../../controls/system.js";
 
 class MiddlewareHandler {
   constructor() {
+    /** @type {Array<function>} */
     this.middlewares = [];
   }
 
@@ -21,11 +22,22 @@ class MiddlewareHandler {
   }
 
   /**
+   * @typedef {Object} Request
+   * @property {boolean} [finished] - Indicates if the request has been handled and the response is complete.
+   */
+
+  /**
+   * @typedef {Object} Response
+   * @property {boolean} [finished] - Indicates if the response has been sent.
+   * @property {(message: string, statusCode: number) => void} send - Method to send a response with a status code.
+   */
+
+  /**
    * Applies the middleware chain to the request and response objects.
    *
-   * @param {Object} req - The request object
-   * @param {Object} res - The response object
-   * @returns {Promise<Object|null>} Resolves to the response object if a middleware finishes it,
+   * @param {Request} req - The request object.
+   * @param {Response} res - The response object.
+   * @returns {Promise<Response|null|undefined>} Resolves to the response object if a middleware finishes it,
    * or null if no middleware ends the response.
    */
   async applyMiddlewares(req, res) {
@@ -38,7 +50,10 @@ class MiddlewareHandler {
           }
         } catch (error) {
           system.error("MIDDLEWARE", "Error in middleware", error);
-          return res.send("Internal Server Error", 500);
+          if (typeof res.send === "function") {
+            res.send("Internal Server Error", 500);
+          }
+          return res;
         }
       }
       return null; // Return null only if no middleware ends the response

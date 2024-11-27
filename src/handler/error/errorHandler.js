@@ -1,39 +1,42 @@
-class errHandler {
-  #advancedError;
-  #message;
-  #stack;
+class ErrHandler {
+  _advancedError;
+  _message;
+  _stack;
+
   constructor() {
-    this.#advancedError = true;
-    this.#message = "error object is not defined";
-    this.#stack = "";
+    this._advancedError = true;
+    this._message = "error object is not defined";
+    this._stack = "";
   }
 
   /**
    * A function to handle errors.
    * @param {string} where - Where the error occurred (e.g., a function name).
    * @param {string} why - A short description of the error.
-   * @param {object} edata - Error data (optional). If provided, the error message and stack are used.
-   * The message is used to display the error, and the stack is used to log the error.
-   * If the error data is not provided, the error is logged as "error object is not defined".
+   * @param {unknown} [edata] - Error data (optional). If provided, the error message and stack are used.
    */
   print(where = "UNKNOWN", why = "UNKNOWN", edata) {
-    if (edata) {
-      this.#message = edata.message ?? this.#message;
-      this.#stack = edata.stack
+    if (edata instanceof Error) {
+      this._message = edata.message ?? this._message;
+      this._stack = edata.stack
         ? edata.stack
             .split("\n")
             .slice(1)
-            .map((line) => " ▶ " + line.trim())
+            .map((/** @type {string} */ line) => " ▶ " + line.trim())
             .join("\n")
         : "";
+    } else {
+      this._message = "Invalid error data provided.";
+      this._stack = "";
     }
-    this.#advancedError
+
+    this._advancedError
       ? console.error(
           `▶▶ ${where.toUpperCase()} ERROR : ${why}`,
-          ` \n ▶ ${this.#message} \n${this.#stack} \n`
+          ` \n ▶ ${this._message} \n${this._stack} \n`
         )
-      : console.error(`![${where.toUpperCase()}] : ${why} - ${this.#message}`);
+      : console.error(`![${where.toUpperCase()}] : ${why} - ${this._message}`);
   }
 }
 
-export default new errHandler();
+export default new ErrHandler();
