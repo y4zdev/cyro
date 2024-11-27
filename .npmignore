@@ -15,5 +15,6 @@ license
 
 #remove dev files
 dev/
+src/
 bun.lockb
 tsconfig.json
