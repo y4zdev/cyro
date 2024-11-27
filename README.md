@@ -8,7 +8,7 @@
 
 ## 🚀 **Features**
 
-Cyro is a lightweight and modular framework designed to simplify web application development.
+Cyro is a lightweight and modular framework designed to simplify backend application development using `Bun`.
 
 ### Core Features
 
