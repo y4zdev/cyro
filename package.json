@@ -1,20 +1,25 @@
 {
   "name": "cyro",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "author": {
     "name": "y4z",
     "email": "cyro@y4z.dev"
   },
-  "module": "./src/app.js",
-  "type": "module",
-  "types": "./index.d.ts",
-  "scripts": {
-    "dev": "bun run --watch src/app.js"
-  },
+  "main": "./src/app.js",
   "devDependencies": {
     "@types/bun": "latest"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "keywords": [
+    "cyro",
+    "cyrojs",
+    "cyro framework",
+    "backend",
+    "api",
+    "bun",
+    "bunjs"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "bun run --watch src/app.js"
   }
 }
