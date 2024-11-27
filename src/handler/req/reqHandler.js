@@ -1,12 +1,35 @@
 import system from "../../controls/system.js";
 
 /**
+ * @typedef {Object} Middleware
+ * @property {function} applyMiddlewares - Adds a middleware function to the middleware chain
+ */
+
+/**
+ * @typedef {Object} Request
+ * @property {string} method - The HTTP method of the request
+ * @property {string} url - The URL of the request
+ */
+
+/**
+ * @typedef {Object} Route
+ * @property {RegExp} regex - The regular expression to match the route
+ * @property {string[]} keys - The dynamic keys for route parameters
+ * @property {function} handler - The function to handle the route
+ */
+
+/**
+ * @typedef {Object} Routes
+ * @property {Record<string, Route[]>} routes - The routes object, where the key is the HTTP method
+ */
+
+/**
  * @description
  * Request handler for handling each incoming request
- * @param {Object} req - The request object
- * @param {Object} routes - The routes object
- * @param {Object} middleware - The middleware object
- * @returns {Promise}
+ * @param {Request} req - The request object
+ * @param {Routes} routes - The routes object
+ * @param {Middleware} middleware - The middleware object
+ * @returns {Promise<void>} Resolves when the request is handled.
  */
 const RequestHandler = async (req, routes, middleware) => {
   const res = system.res();
@@ -15,7 +38,8 @@ const RequestHandler = async (req, routes, middleware) => {
     // Apply middlewares with both req and res
     const responseFromMiddleware = await middleware.applyMiddlewares(req, res);
     if (responseFromMiddleware && res.finished) {
-      return res.end(); // Return the Response object created by res.end()
+      res.end(); // Return the Response object created by res.end()
+      return;
     }
 
     // Extract request details
@@ -25,7 +49,8 @@ const RequestHandler = async (req, routes, middleware) => {
       url = new URL(req.url);
     } catch (urlError) {
       system.error("request", "Invalid URL in request", urlError);
-      return res.send("Bad Request", 400);
+      res.send("Bad Request", 400);
+      return;
     }
 
     const pathname = url.pathname;
@@ -42,42 +67,51 @@ const RequestHandler = async (req, routes, middleware) => {
 
     // Find matching route
     const route = routes.routes[method]?.find((r) => r.regex.test(pathname));
-    if (route) {
-      const match = pathname.match(route.regex);
-      const dynamicparams = {};
-
-      try {
-        route.keys.forEach((key, index) => {
-          dynamicparams[key] = match[index + 1];
-        });
-      } catch (error) {
-        system.error("request", "extracting dynamic parameters", error);
-        return res.send("Internal Server Error", 500);
-      }
-
-      // Create an options object to pass to the handler
-      const option = {
-        dynamic: dynamicparams,
-        query: queryParams,
-      };
-
-      // Call the route handler
-      try {
-        await route.handler(req, res, option);
-      } catch (error) {
-        system.error("request", "in route handler", error);
-        return res.send("Internal Server Error", 500);
-      }
-
-      // End the response
-      return res.end();
-    } else {
-      // console.warn(`![REQUEST]: Route not found for ${method} ${pathname}`);
-      return res.send("Not Found", 404);
+    if (!route) {
+      res.send("Not Found", 404);
+      return;
     }
+
+    const match = pathname.match(route.regex);
+    if (!match) {
+      res.send("Not Found", 404);
+      return;
+    }
+
+    const dynamicparams = /** @type {{ [key: string]: string }} */ ({});
+
+    try {
+      route.keys.forEach((key, index) => {
+        dynamicparams[key] = match[index + 1];
+      });
+    } catch (error) {
+      system.error("request", "extracting dynamic parameters", error);
+      res.send("Internal Server Error", 500);
+      return;
+    }
+
+    // Create an options object to pass to the handler
+    const option = {
+      dynamic: dynamicparams,
+      query: queryParams,
+    };
+
+    // Call the route handler
+    try {
+      await route.handler(req, res, option);
+    } catch (error) {
+      system.error("request", "in route handler", error);
+      res.send("Internal Server Error", 500);
+      return;
+    }
+
+    // End the response
+    res.end();
+    return;
   } catch (err) {
     system.error("request", "in request handler", err);
-    return res.send("Internal Server Error", 500);
+    res.send("Internal Server Error", 500);
+    return;
   }
 };
 

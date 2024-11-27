@@ -129,6 +129,7 @@ class ResponseHandler {
 
   /**
    * Ends the response and returns a Response object.
+   * @returns {Response} - The Response object.
    */
   end() {
     this.finished = true;
@@ -144,10 +145,21 @@ class ResponseHandler {
   }
 
   /**
+   * @typedef {Object} CookieOptions
+   * @property {Date} [expires] - Expiration date of the cookie.
+   * @property {number} [maxAge] - Max age of the cookie in seconds.
+   * @property {string} [path] - URL path for the cookie.
+   * @property {string} [domain] - Domain for the cookie.
+   * @property {boolean} [secure] - Whether the cookie is secure.
+   * @property {boolean} [httpOnly] - Whether the cookie is HTTP-only.
+   * @property {"Strict" | "Lax" | "None"} [sameSite] - SameSite policy for the cookie.
+   */
+
+  /**
    * Sets a cookie.
    * @param {string} name - Cookie name.
    * @param {string} value - Cookie value.
-   * @param {Object} [options={}] - Additional cookie options.
+   * @param {CookieOptions} [options={}] - Additional cookie options.
    */
   cookie(name, value, options = {}) {
     try {

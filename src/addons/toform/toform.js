@@ -12,10 +12,14 @@ async function formtodata(req) {
       throw new Error("Invalid request object or formData method unavailable");
     }
 
+    /** @type {FormData} */
     const formData = await req.formData();
+
+    /** @type {Record<string, FormDataEntryValue | FormDataEntryValue[]>} */
     const dataObj = {};
 
-    for (const [key, value] of formData.entries()) {
+    // Use the explicit cast to `FormData` to ensure correct typing for `entries`.
+    for (const [key, value] of /** @type {FormData} */ (formData).entries()) {
       if (key in dataObj) {
         // Ensure the value is an array for multiple entries with the same key
         if (!Array.isArray(dataObj[key])) {

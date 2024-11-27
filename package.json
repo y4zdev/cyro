@@ -1,14 +1,8 @@
 {
   "name": "cyro",
-  "version": "2.1.6",
-  "author": {
-    "name": "y4z",
-    "email": "cyro@y4z.dev"
-  },
-  "main": "./src/app.js",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
+  "version": "2.2.1",
+  "author": "y4z.dev",
+  "description": "Cyro is a backend framework for Bun.js",
   "keywords": [
     "cyro",
     "cyrojs",
@@ -19,7 +13,27 @@
     "bunjs"
   ],
   "license": "MIT",
+  "homepage": "https://cyro.y4z.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/y4zdev/cyro"
+  },
+  "main": "dist/src/app.js",
+  "module": "dist/src/app.js",
+  "types": "dist/src/app.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/app/app.js",
+      "require": "./dist/app/app.js"
+    }
+  },
   "scripts": {
-    "dev": "bun run --watch src/app.js"
+    "build": "tsc",
+    "start": "bun run build && node dist/index.js",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.14",
+    "typescript": "^5.7.2"
   }
 }

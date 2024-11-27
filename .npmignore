@@ -11,3 +11,9 @@ docs/
 code_of_conduct.md
 .gitignore
 security.md
+license
+
+#remove dev files
+dev/
+bun.lockb
+tsconfig.json

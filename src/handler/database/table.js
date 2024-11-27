@@ -1,8 +1,15 @@
 import system from "../../controls/system.js";
+import DatabaseHandler from "./database.js";
 
 class TableManager {
+  /**
+   * Create a new TableManager instance.
+   * @param {DatabaseHandler} database - Database handler instance.
+   * @param {boolean} log - Enable logging.
+   * @param {boolean} ignoreErrors - Ignore errors.
+   *  */
   constructor(database, log = false, ignoreErrors = true) {
-    this.database = database; //database connection
+    this.database = database;
     this.log = log;
     this.ignoreError = ignoreErrors;
   }
@@ -20,16 +27,16 @@ class TableManager {
 
   /**
    * Handle errors and decide whether to throw or ignore them.
-   * @param {Error} error - The error to handle.
+   * @param {Error|unknown} error - The error to handle.
    */
-  static returnError(error) {
+  returnError(error) {
     if (!this.ignoreError) throw error;
   }
 
   /**
    * Check if a table exists in the database.
    * @param {string} tableName - Name of the table.
-   * @returns {boolean} True if the table exists, false otherwise.
+   * @returns {boolean|undefined} True if the table exists, false otherwise.
    */
   exists(tableName) {
     try {
@@ -42,11 +49,17 @@ class TableManager {
               FROM sqlite_master 
               WHERE type='table' AND name=?;
           `;
+
+      if (!this.database.connection) {
+        throw new Error("No active database connection.");
+      }
+
       const result = this.database.connection.prepare(query).get(tableName);
-      return !!result;
+
+      return Boolean(result);
     } catch (error) {
       system.error("DATABASE", "Failed to check table existence", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -77,12 +90,15 @@ class TableManager {
         throw new Error("Schema must define at least one column.");
       }
 
+      if (!this.database.connection) {
+        throw new Error("No active database connection.");
+      }
       this.database.connection.run(`CREATE TABLE ${tableName} (${columns})`);
       this.log &&
         console.log(`DATABASE: Table '${tableName}' created successfully.`);
     } catch (error) {
       system.error("DATABASE", "Failed to create table", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 
@@ -100,12 +116,15 @@ class TableManager {
         throw new Error(`Table '${tableName}' does not exist.`);
       }
 
+      if (!this.database.connection) {
+        throw new Error("No active database connection.");
+      }
       this.database.connection.run(`DROP TABLE ${tableName}`);
       this.log &&
         console.log(`DATABASE: Table '${tableName}' dropped successfully.`);
     } catch (error) {
       system.error("DATABASE", "Failed to drop table", error);
-      returnError(error);
+      this.returnError(error);
     }
   }
 }

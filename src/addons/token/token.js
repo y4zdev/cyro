@@ -1,11 +1,21 @@
 import system from "../../controls/system.js";
 
-// Base64Url encode function
+/**
+ * Encodes a given string into Base64Url format.
+ *
+ * @param {string} str - The input string to encode.
+ * @returns {string} - The Base64Url encoded string.
+ */
 function base64UrlEncode(str) {
   return btoa(str).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
-// Base64Url decode function
+/**
+ * Decodes a Base64Url-encoded string.
+ *
+ * @param {string} str - The Base64Url encoded string to decode.
+ * @returns {string|null} - The decoded string, or null if an error occurs.
+ */
 function base64UrlDecode(str) {
   try {
     str = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -19,7 +29,13 @@ function base64UrlDecode(str) {
   }
 }
 
-// Function to create HMAC SHA-256 signature
+/**
+ * Creates a HMAC SHA-256 signature for the given data and secret.
+ *
+ * @param {string} data - The data to be signed.
+ * @param {string} secret - The secret key used to sign the data.
+ * @returns {Promise<string|null>} - The Base64Url encoded signature, or null if an error occurs.
+ */
 async function createHmacSha256(data, secret) {
   try {
     const encoder = new TextEncoder();
@@ -48,12 +64,11 @@ async function createHmacSha256(data, secret) {
 }
 
 /**
- * Creates a token with the given payload and a signature generated
- * using the HMAC SHA-256 algorithm with the given secret.
+ * Creates a token with the provided payload and a signature generated using HMAC SHA-256.
  *
- * @param {object} payload - The payload to be signed.
- * @param {string} secret - The secret key.
- * @returns {Promise<string>} - Returns the token.
+ * @param {object} payload - The payload to be included in the token.
+ * @param {string} secret - The secret key used to sign the token.
+ * @returns {Promise<string|null>} - The generated token, or null if an error occurs.
  */
 async function createToken(payload, secret) {
   try {
@@ -85,11 +100,11 @@ async function createToken(payload, secret) {
 }
 
 /**
- * Verifies a custom token and reads its header and payload.
+ * Verifies a token by checking its signature and decoding its payload.
  *
  * @param {string} token - The token to be verified.
  * @param {string} secret - The secret key used to verify the token's signature.
- * @returns {Promise<object|boolean>} - Returns the decoded payload if the token is valid, or false if invalid.
+ * @returns {Promise<object|boolean>} - The decoded payload if the token is valid, or false if invalid.
  */
 async function verifyToken(token, secret) {
   try {
@@ -122,7 +137,6 @@ async function verifyToken(token, secret) {
     if (expectedSignature === givenSignature) {
       return parsedPayload;
     } else {
-      // console.warn("Signature mismatch");
       return false;
     }
   } catch (error) {

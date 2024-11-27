@@ -1,10 +1,10 @@
 import DatabaseHandler from "../handler/database/database.js";
 
 class Database {
-  #handler;
+  _handler;
 
   constructor() {
-    this.#handler = new DatabaseHandler();
+    this._handler = new DatabaseHandler();
   }
 
   /**
@@ -14,7 +14,7 @@ class Database {
    * @param {boolean} ignoreErrors - Ignore SQLite errors. If set to false, any error will crash the app. By default, errors are ignored.
    */
   init(path = "./database/cyro.db", strict = true, ignoreErrors = true) {
-    this.#handler.init(path, strict, ignoreErrors);
+    this._handler.init(path, strict, ignoreErrors);
   }
 
   /**
@@ -23,7 +23,7 @@ class Database {
    * @param {object} data - Data to insert (e.g., { column: value }).
    */
   insert(tableName, data) {
-    this.#handler.insert(tableName, data);
+    this._handler.insert(tableName, data);
   }
 
   /**
@@ -33,7 +33,7 @@ class Database {
    * @param {object} filter - Key-value pairs for WHERE conditions.
    */
   update(tableName, newData, filter = {}) {
-    this.#handler.update(tableName, newData, filter);
+    this._handler.update(tableName, newData, filter);
   }
 
   /**
@@ -42,17 +42,17 @@ class Database {
    * @param {object} filter - Key-value pairs for WHERE conditions.
    */
   delete(tableName, filter = {}) {
-    this.#handler.delete(tableName, filter);
+    this._handler.delete(tableName, filter);
   }
 
   /**
    * Select data from a table with advanced querying options.
    * @param {string} tableName - Name of the table.
    * @param {object} options - Query options: columns, filters, limit, orderBy.
-   * @returns {Array<object>} - Array of rows matching the query.
+   * @returns {Array<object>} - Array of rows matching the query, or an empty array if no rows found.
    */
   select(tableName, options = {}) {
-    return this.#handler.select(tableName, options);
+    return this._handler.select(tableName, options) || [];
   }
 
   /**
@@ -62,14 +62,14 @@ class Database {
    * @returns {object|null} - The first matching row or null.
    */
   get(tableName, filters = {}) {
-    return this.#handler.get(tableName, filters);
+    return this._handler.get(tableName, filters) || [];
   }
 
   /**
    * Close the database connection.
    */
   close() {
-    this.#handler.close();
+    this._handler.close();
   }
 }
 

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+
+    // dependencies
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "downlevelIteration": true,
+
+    "declaration": true, // Generate .d.ts files
+    "esModuleInterop": true, // Allow CommonJS
+
+    // Output directory
+    "outDir": "./dist",
+
+    // skip lib check
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
