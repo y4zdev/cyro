@@ -1,12 +1,13 @@
 {
   "name": "cyro",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "author": {
     "name": "y4z",
     "email": "cyro@y4z.dev"
   },
   "module": "./src/app.js",
   "type": "module",
+  "types": "./index.d.ts",
   "scripts": {
     "dev": "bun run --watch src/app.js"
   },
