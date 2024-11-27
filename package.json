@@ -1,0 +1,14 @@
+{
+  "name": "cyro",
+  "module": "./src/app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/app.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
