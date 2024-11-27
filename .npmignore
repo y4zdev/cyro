@@ -1,5 +1,13 @@
 node_modules/
+
+# remove github
 .github/
 .git/
 
-jsconfig.json
+# remove docs
+docs/
+
+#remove unwanted files
+code_of_conduct.md
+.gitignore
+security.md

@@ -46,13 +46,13 @@ Enhance your application with powerful add-ons:
 Learn how to use Cyro with step-by-step examples:
 
 - **Basic Usage:** Get started quickly.  
-  [Read the guide →](./docs/guide.md)
+  [Read the guide →](https://github.com/y4z-dev/cyro/blob/release/docs/guide.md)
 
 - **Database Management:** Explore database integration and handling.  
-  [Read the guide →](./docs/database.md)
+  [Read the guide →](https://github.com/y4z-dev/cyro/blob/release/docs/database.md)
 
 - **Add-ons:** Learn about and implement additional features.  
-  [Read the guide →](./docs/addons.md)
+  [Read the guide →](https://github.com/y4z-dev/cyro/blob/release/docs/guide.md)
 
 ---
 
