@@ -3,11 +3,20 @@
     "allowJs": true,
     "checkJs": true,
     "strict": true,
-    "outDir": "./dist",
 
-    // add dependencies
+    // dependencies
     "lib": ["dom", "dom.iterable", "esnext"],
     "downlevelIteration": true,
-    "types": ["bun-types"]
-  }
+
+    "declaration": true, // Generate .d.ts files
+    "esModuleInterop": true, // Allow CommonJS
+
+    // Output directory
+    "outDir": "./dist",
+
+    // skip lib check
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
