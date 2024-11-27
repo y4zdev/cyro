@@ -1,11 +1,5 @@
 node_modules/
-docs/
 .github/
 .git/
 
 jsconfig.json
-
-README.md
-license
-security.md
-code_of_conduct.md
