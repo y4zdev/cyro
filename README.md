@@ -6,7 +6,7 @@
 **Developed by:** [y4z.dev](https://y4z.dev)
 
 > [!IMPORTANT]
-> Required [`Bun`](https://bun.sh)
+> Required [`Bun runtime`](https://bun.sh)
 
 ---
 
