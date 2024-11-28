@@ -12,7 +12,7 @@
 
 ## 🚀 **Features**
 
-Cyro is a lightweight and modular framework designed to simplify backend application development using [`Bun`](https://bun.sh)
+Cyro is a lightweight and modular framework designed to simplify backend application development using **`Bun runtime`**.
 
 ### Core Features
 
