@@ -2,13 +2,17 @@
 
 **Version:** `2.0`  
 **Framework:** `Cyro`  
+**Runtime:** `Bun`
 **Developed by:** [y4z.dev](https://y4z.dev)
+
+> [!IMPORTANT]
+> Required [`Bun`](https://bun.sh)
 
 ---
 
 ## 🚀 **Features**
 
-Cyro is a lightweight and modular framework designed to simplify backend application development using `Bun`.
+Cyro is a lightweight and modular framework designed to simplify backend application development using [`Bun`](https://bun.sh)
 
 ### Core Features
 
