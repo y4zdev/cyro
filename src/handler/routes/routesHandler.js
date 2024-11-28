@@ -1,4 +1,5 @@
 import system from "../../controls/system.js";
+import ResponseHandler from "../res/resHandler.js";
 
 /**
  * @typedef {Object} Request
@@ -6,22 +7,6 @@ import system from "../../controls/system.js";
  * @property {string} url - Request URL.
  * @property {object} headers - Request headers.
  * @property {any} body - Request body.
- */
-
-/**
- * @typedef {Object} ResponseHandler
- * @property {function(number): ResponseHandler} status - Sets the response status code and returns the response handler.
- * @property {number} statusCode - The HTTP status code.
- * @property {Object} headers - The headers of the response.
- * @property {string} body - The body of the response.
- * @property {boolean} finished - Whether the response is finished.
- * @property {Function} setHeader - Function to set a header in the response.
- * @property {Function} send - Function to send the response body.
- * @property {Function} end - Function to end the response.
- * @property {Function} header - Sets a header for the response.
- * @property {Function} json - Sends a JSON response.
- * @property {Function} text - Sends a plain text response.
- * @property {Function} html - Sends an HTML response.
  */
 
 /**

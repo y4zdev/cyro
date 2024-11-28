@@ -29,17 +29,17 @@ import system from "../../controls/system.js";
  * @param {Request} req - The request object
  * @param {Routes} routes - The routes object
  * @param {Middleware} middleware - The middleware object
- * @returns {Promise<void>} Resolves when the request is handled.
+ * @returns {Promise<void|Response>} Resolves when the request is handled.
  */
 const RequestHandler = async (req, routes, middleware) => {
-  const res = system.res();
+  const res = system.res;
 
   try {
     // Apply middlewares with both req and res
     const responseFromMiddleware = await middleware.applyMiddlewares(req, res);
-    if (responseFromMiddleware && res.finished) {
-      res.end(); // Return the Response object created by res.end()
-      return;
+
+    if (responseFromMiddleware && res.finishState()) {
+      return res.end();
     }
 
     // Extract request details
@@ -86,8 +86,7 @@ const RequestHandler = async (req, routes, middleware) => {
       });
     } catch (error) {
       system.error("request", "extracting dynamic parameters", error);
-      res.send("Internal Server Error", 500);
-      return;
+      return res.send("Internal Server Error", 500);
     }
 
     // Create an options object to pass to the handler
@@ -101,8 +100,7 @@ const RequestHandler = async (req, routes, middleware) => {
       await route.handler(req, res, option);
     } catch (error) {
       system.error("request", "in route handler", error);
-      res.send("Internal Server Error", 500);
-      return;
+      return res.send("Internal Server Error", 500);
     }
 
     // End the response
@@ -110,8 +108,7 @@ const RequestHandler = async (req, routes, middleware) => {
     return;
   } catch (err) {
     system.error("request", "in request handler", err);
-    res.send("Internal Server Error", 500);
-    return;
+    return res.send("Internal Server Error", 500);
   }
 };
 

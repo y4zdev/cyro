@@ -1,0 +1,3 @@
+check middleware route and make sure `finishState()` is in response handler
+
+dont change responsehandler functions without checking middleware

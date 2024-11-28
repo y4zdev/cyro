@@ -8,6 +8,7 @@ import errHandler from "../handler/error/errorHandler.js";
 
 class System {
   constructor() {
+    this.res = new ResponseHandler();
     this.middlewareChain = new Middleware();
     this.routes = new Routes();
     this.addon = new Addons();
@@ -44,7 +45,7 @@ class System {
    * @property {string} body - The body of the response.
    * @property {boolean} finished - Whether the response is finished.
    * @property {Function} setHeader - Function to set a header in the response.
-   * @property {Function} send - Function to send the response body.
+   * @property {any} send - Function to send the response body.
    * @property {Function} end - Function to end the response.
    * @property {Function} header - Sets a header for the response.
    * @property {Function} json - Sends a JSON response.
@@ -149,11 +150,6 @@ class System {
    */
   middleware(func) {
     return this.middlewareChain.use(func); //not use
-  }
-
-  //> RESPONSES
-  res() {
-    return new ResponseHandler();
   }
 
   //> ERRORS
