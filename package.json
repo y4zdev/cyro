@@ -1,6 +1,6 @@
 {
   "name": "cyro",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "author": "y4z.dev",
   "description": "Cyro is a backend framework for Bun.js",
   "keywords": [
