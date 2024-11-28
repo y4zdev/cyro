@@ -2,6 +2,7 @@ import { serve } from "bun";
 import system from "./controls/system.js";
 import Addons from "./controls/addons.js";
 import Database from "./controls/database.js";
+import ResponseHandler from "./handler/res/resHandler.js";
 
 class App {
   constructor() {
@@ -14,21 +15,7 @@ class App {
    */
 
   /**
-   * @typedef {Object} response
-   * @property {function} status - Sets the HTTP status code for the response.
-   *
-   * @property {number} statusCode - The HTTP status code.
-   * @property {Object} headers - The headers of the response.
-   * @property {string} body - The body of the response.
-   * @property {boolean} finished - Whether the response is finished.
-   * @property {Function} setHeader - Function to set a header in the response.
-   * @property {any} send - Function to send the response body.
-   * @property {Function} end - Function to end the response.
-   * @property {Function} header - Sets a header for the response.
-   * @property {Function} json - Sends a JSON response.
-   * @property {Function} text - Sends a plain text response.
-   * @property {Function} html - Sends an HTML response.
-   */
+   * @typedef {ResponseHandler} response
 
   //>> MIDDLEWARE
   /**

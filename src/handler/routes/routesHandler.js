@@ -90,7 +90,7 @@ class RoutesHandler {
       // Find matching route
       const route = this._matchRoute(method, path);
       if (!route) {
-        res.status(404).send({ error: "Route not found" });
+        res.send("Route not found", 404);
         return;
       }
 
@@ -103,7 +103,7 @@ class RoutesHandler {
         `Error handling request [${method} ${path}]`,
         error
       );
-      res.status(500).send({ error: "Internal Server Error" });
+      res.send("Internal Server Error", 500);
     }
   }
 

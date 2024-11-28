@@ -45,12 +45,12 @@ const RequestHandler = async (req, routes, middleware) => {
     // Extract request details
     const method = req.method || "GET"; // Default to GET if method is undefined
     let url;
+
     try {
       url = new URL(req.url);
     } catch (urlError) {
       system.error("request", "Invalid URL in request", urlError);
-      res.send("Bad Request", 400);
-      return;
+      return res.send("Bad Request", 400);
     }
 
     const pathname = url.pathname;
@@ -68,14 +68,12 @@ const RequestHandler = async (req, routes, middleware) => {
     // Find matching route
     const route = routes.routes[method]?.find((r) => r.regex.test(pathname));
     if (!route) {
-      res.send("Not Found", 404);
-      return;
+      return res.send("Not Found", 404);
     }
 
     const match = pathname.match(route.regex);
     if (!match) {
-      res.send("Not Found", 404);
-      return;
+      return res.send("Not Found", 404);
     }
 
     const dynamicparams = /** @type {{ [key: string]: string }} */ ({});
@@ -104,8 +102,7 @@ const RequestHandler = async (req, routes, middleware) => {
     }
 
     // End the response
-    res.end();
-    return;
+    return res.end();
   } catch (err) {
     system.error("request", "in request handler", err);
     return res.send("Internal Server Error", 500);
