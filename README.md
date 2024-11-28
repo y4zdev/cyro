@@ -1,7 +1,7 @@
 # **Cyro**
 
-**Version:** `2.0`  
-**Framework:** `Cyro`  
+**Version:** `2.0`
+**Framework:** `Cyro`
 **Runtime:** `Bun`
 **Developed by:** [y4z.dev](https://y4z.dev)
 
