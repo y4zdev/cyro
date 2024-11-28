@@ -1,4 +1,5 @@
 import system from "../../controls/system.js";
+import ResponseHandler from "../res/resHandler.js";
 
 class MiddlewareHandler {
   constructor() {
@@ -27,17 +28,11 @@ class MiddlewareHandler {
    */
 
   /**
-   * @typedef {Object} Response
-   * @property {boolean} [finished] - Indicates if the response has been sent.
-   * @property {(message: string, statusCode: number) => void} send - Method to send a response with a status code.
-   */
-
-  /**
    * Applies the middleware chain to the request and response objects.
    *
    * @param {Request} req - The request object.
-   * @param {Response} res - The response object.
-   * @returns {Promise<Response|null|undefined>} Resolves to the response object if a middleware finishes it,
+   * @param {ResponseHandler} res - The response object.
+   * @returns {Promise<ResponseHandler|null|undefined>} Resolves to the response object if a middleware finishes it,
    * or null if no middleware ends the response.
    */
   async applyMiddlewares(req, res) {
@@ -45,8 +40,8 @@ class MiddlewareHandler {
       for (const middleware of this.middlewares) {
         try {
           await middleware(req, res);
-          if (res.finished) {
-            return res; // Explicitly return the response if finished
+          if (res.finishState()) {
+            return res;
           }
         } catch (error) {
           system.error("MIDDLEWARE", "Error in middleware", error);

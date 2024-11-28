@@ -8,6 +8,7 @@ import errHandler from "../handler/error/errorHandler.js";
 
 class System {
   constructor() {
+    this.res = new ResponseHandler();
     this.middlewareChain = new Middleware();
     this.routes = new Routes();
     this.addon = new Addons();
@@ -31,33 +32,19 @@ class System {
   }
 
   //> REQUEST METHODS
-
   /**
-   * @typedef {Object} reqType
+   * @typedef {Object} request
    */
-
   /**
-   * @typedef {Object} resType
-   * @property {function(number): resType} status - Sets the response status code and returns the response handler.
-   * @property {number} statusCode - The HTTP status code.
-   * @property {Object} headers - The headers of the response.
-   * @property {string} body - The body of the response.
-   * @property {boolean} finished - Whether the response is finished.
-   * @property {Function} setHeader - Function to set a header in the response.
-   * @property {Function} send - Function to send the response body.
-   * @property {Function} end - Function to end the response.
-   * @property {Function} header - Sets a header for the response.
-   * @property {Function} json - Sends a JSON response.
-   * @property {Function} text - Sends a plain text response.
-   * @property {Function} html - Sends an HTML response.
-   */
+   * @typedef {ResponseHandler} response
+   * @property {function(number): response} status - Sets the response status code and returns the response handler.
 
   /**
    * Adds a route handler for the specified HTTP method and path.
    *
    * @param {string} method - The HTTP method to match (GET, POST, etc.)
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_route(method, path, handler) {
@@ -68,7 +55,7 @@ class System {
    * Adds a GET route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_get(path, handler) {
@@ -79,7 +66,7 @@ class System {
    * Adds a POST route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_post(path, handler) {
@@ -90,7 +77,7 @@ class System {
    * Adds a PUT route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_put(path, handler) {
@@ -101,7 +88,7 @@ class System {
    * Adds a DELETE route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_delete(path, handler) {
@@ -112,7 +99,7 @@ class System {
    * Adds a PATCH route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_patch(path, handler) {
@@ -123,7 +110,7 @@ class System {
    * Adds a HEAD route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_head(path, handler) {
@@ -134,7 +121,7 @@ class System {
    * Adds a OPTIONS route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_options(path, handler) {
@@ -149,11 +136,6 @@ class System {
    */
   middleware(func) {
     return this.middlewareChain.use(func); //not use
-  }
-
-  //> RESPONSES
-  res() {
-    return new ResponseHandler();
   }
 
   //> ERRORS

@@ -1,11 +1,20 @@
 import system from "../../controls/system.js";
 
 class ResponseHandler {
+  /** @type {number} */
+  #statusCode;
+  /** @type {Headers} */
+  #headers;
+  /** @type {*} */
+  #body;
+  /** @type {boolean} */
+  #finished;
+
   constructor() {
-    this.statusCode = 200;
-    this.headers = new Headers();
-    this.body = null;
-    this.finished = false; // Track if the response has been sent
+    this.#statusCode = 200;
+    this.#headers = new Headers();
+    this.#body = null;
+    this.#finished = false; // Track if the response has been sent
   }
 
   /**
@@ -14,10 +23,10 @@ class ResponseHandler {
    */
   status(code) {
     if (typeof code === "number" && code >= 100 && code <= 599) {
-      this.statusCode = code;
+      this.#statusCode = code;
     } else {
       system.error("response", `Invalid status code - ${code}`);
-      this.statusCode = 500;
+      this.#statusCode = 500;
     }
   }
 
@@ -29,10 +38,10 @@ class ResponseHandler {
   header(nameOrHeaders, value) {
     if (typeof nameOrHeaders === "object") {
       Object.entries(nameOrHeaders).forEach(([key, val]) =>
-        this.headers.set(key, val)
+        this.#headers.set(key, val)
       );
     } else if (typeof nameOrHeaders === "string" && value !== undefined) {
-      this.headers.set(nameOrHeaders, value);
+      this.#headers.set(nameOrHeaders, value);
     } else {
       system.error(
         "response",
@@ -52,13 +61,13 @@ class ResponseHandler {
       this.status(status);
       this.header(headers);
 
-      this.setContentType(body);
-      this.body = this.formatBody(body);
+      this.#setContentType(body);
+      this.#body = this.#formatBody(body);
 
       return this.end();
     } catch (err) {
       system.error("response", "send method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -74,7 +83,7 @@ class ResponseHandler {
       return this.send(JSON.stringify(data), status, headers);
     } catch (err) {
       system.error("response", "json method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -90,7 +99,7 @@ class ResponseHandler {
       return this.send(text, status, headers);
     } catch (err) {
       system.error("response", "text method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -106,7 +115,7 @@ class ResponseHandler {
       return this.send(htmlContent, status, headers);
     } catch (err) {
       system.error("response", "html method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -119,11 +128,11 @@ class ResponseHandler {
     try {
       this.status(status);
       this.header("Location", url);
-      this.body = null; // No body for redirect
+      this.#body = null; // No body for redirect
       return this.end();
     } catch (err) {
       system.error("response", "redirect method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -132,15 +141,15 @@ class ResponseHandler {
    * @returns {Response} - The Response object.
    */
   end() {
-    this.finished = true;
+    this.#finished = true;
     try {
-      return new Response(this.body, {
-        status: this.statusCode,
-        headers: this.headers,
+      return new Response(this.#body, {
+        status: this.#statusCode,
+        headers: this.#headers,
       });
     } catch (err) {
       system.error("response", "end method", err);
-      return this.internalServerError();
+      return this.#internalServerError();
     }
   }
 
@@ -181,10 +190,19 @@ class ResponseHandler {
   }
 
   /**
+   * Checks whether the response has finished.
+   * @returns {boolean} - True if the response has finished, false otherwise.
+   */
+  finishState() {
+    return this.#finished;
+  }
+
+  /**
    * Sets appropriate content type based on the body.
    * @param {any} body - Response body.
+ 
    */
-  setContentType(body) {
+  #setContentType(body) {
     if (typeof body === "string") {
       const isHTML = body.trim().startsWith("<") && body.trim().endsWith(">");
       this.header("Content-Type", isHTML ? "text/html" : "text/plain");
@@ -199,7 +217,7 @@ class ResponseHandler {
    * Formats the response body for supported types.
    * @param {any} body - Response body.
    */
-  formatBody(body) {
+  #formatBody(body) {
     if (typeof body === "object" && !(body instanceof ArrayBuffer)) {
       return JSON.stringify(body);
     }
@@ -207,11 +225,11 @@ class ResponseHandler {
   }
 
   /**
-   * Returns a 500 Internal Server Error response.
+   * Sends an internal server error response.
    */
-  internalServerError() {
+  #internalServerError() {
     this.status(500);
-    this.body = "Internal Server Error";
+    this.#body = "Internal Server Error";
     return this.end();
   }
 }

@@ -2,6 +2,7 @@ import { serve } from "bun";
 import system from "./controls/system.js";
 import Addons from "./controls/addons.js";
 import Database from "./controls/database.js";
+import ResponseHandler from "./handler/res/resHandler.js";
 
 class App {
   constructor() {
@@ -9,34 +10,32 @@ class App {
     this.db = new Database();
   }
 
+  /**
+   * @typedef {Object} request
+   */
+
+  /**
+   * @typedef {ResponseHandler} response
+
+  //>> MIDDLEWARE
+  /**
+   * @description
+   * Middleware functions run sequentially, and the chain **halts if a response is sent**.
+   *
+   * @param {(req: request, res: response) => void} func - supports two parameters: `req`, `res`.
+   */
+  middleware(func) {
+    system.middleware(func);
+  }
+
   //>> REQUEST METHODS
-
-  /**
-   * @typedef {Object} reqType
-   */
-
-  /**
-   * @typedef {Object} resType
-   * @property {function(number): resType} status - Sets the response status code and returns the response handler.
-   * @property {number} statusCode - The HTTP status code.
-   * @property {Object} headers - The headers of the response.
-   * @property {string} body - The body of the response.
-   * @property {boolean} finished - Whether the response is finished.
-   * @property {Function} setHeader - Function to set a header in the response.
-   * @property {Function} send - Function to send the response body.
-   * @property {Function} end - Function to end the response.
-   * @property {Function} header - Sets a header for the response.
-   * @property {Function} json - Sends a JSON response.
-   * @property {Function} text - Sends a plain text response.
-   * @property {Function} html - Sends an HTML response.
-   */
 
   /**
    * Adds a route handler for the specified HTTP method and path.
    *
    * @param {string} method - The HTTP method to match - GET, POST, etc.
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_route(method, path, handler) {
@@ -47,7 +46,7 @@ class App {
    * Adds a GET route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_get(path, handler) {
@@ -58,7 +57,7 @@ class App {
    * Adds a POST route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_post(path, handler) {
@@ -69,7 +68,7 @@ class App {
    * Adds a PUT route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_put(path, handler) {
@@ -80,7 +79,7 @@ class App {
    * Adds a DELETE route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_delete(path, handler) {
@@ -91,7 +90,7 @@ class App {
    * Adds a PATCH route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_patch(path, handler) {
@@ -102,7 +101,7 @@ class App {
    * Adds a HEAD route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_head(path, handler) {
@@ -113,21 +112,11 @@ class App {
    * Adds a OPTIONS route handler for the specified path.
    *
    * @param {string} path - The path to match.
-   * @param {(req: reqType, res: resType, params: { [key: string]: string }) => any} handler - The route handler function that takes
+   * @param {(req: request, res: response, params: { [key: string]: string }) => any} handler - The route handler function that takes
    * three parameters: `req`, `res`, and `options`.
    */
   req_options(path, handler) {
     system.req_options(path, handler);
-  }
-
-  //>> MIDDLEWARE
-  /**
-   * Adds a middleware function to the middleware chain.
-   *
-   * @param {function} func - The middleware function that takes
-   */
-  middleware(func) {
-    system.middleware(func);
   }
 
   //>> SYSTEM EVENTS
@@ -143,9 +132,18 @@ class App {
         fetch: (req) => system.req(req),
         port: port,
 
-        // @ts-ignore: Ignore websocket property error for now
         // TODO : ADD WEBSOCKET SUPPORT
-        websocket: false,
+        websocket: {
+          open: (ws) => {
+            // console.log("Client connected");
+          },
+          message: (ws, message) => {
+            // console.log("Client sent message", message);
+          },
+          close: (ws) => {
+            // console.log("Client disconnected");
+          },
+        },
       });
     } catch (err) {
       system.error("app", "starting server failed", err);
